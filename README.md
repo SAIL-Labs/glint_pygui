@@ -1,5 +1,5 @@
 # glint_pygui
-Python GUI of GLINT
+## Python GUI of GLINT
 
 The goal is to create a GUI of GINT in python and replace the existing one in Matlab.
 This GUI reproduce the features of the Matlab version: the real time control GUI and the Camera control GUI.
@@ -14,3 +14,7 @@ Main features from Matlab GUI will be:
 
 Bonus:
 - RT view of the spectrum in the selected output to chase wiggles
+
+## Update: 2021-01-22
+Interface is created.
+Python script started: execute ``rt_control_gui`` in your favorite way.
