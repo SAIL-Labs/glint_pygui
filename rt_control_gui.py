@@ -116,6 +116,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.button_mems_to_zero.clicked.connect(self.clickMemsToZero)
         self.null_opti.clicked.connect(self.clickNullScan)
         self.tt_opt.clicked.connect(self.clickTtOpti)
+        self.camera_command.returnPressed.connect(self.send_camera_command)
+        self.push_button_save_dir.clicked.connect(self.browse_save_dir)
+       
         
         # Debug
         self.count = 0
@@ -315,6 +318,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.opti_waiting = float(self.scan_wait.text())
         self.nloops = int(self.num_loops.text())        
         self.addHistoryItem("TT Opti")
+
+    # =============================================================================
+    # Camera Control   
+    # =============================================================================
+    def send_camera_command(self):
+        self.addHistoryItem('Cam Com:'+str(self.camera_command.text()))
+
+    def browse_save_dir(self):
+        dir_name = QtWidgets.QFileDialog.getExistingDirectory()
+        self.line_edit_save_dir.setText(dir_name)
 
 app = QtWidgets.QApplication([])
 main = MainWindow()
