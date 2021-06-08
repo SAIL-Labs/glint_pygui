@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1371</width>
+    <width>1400</width>
     <height>897</height>
    </rect>
   </property>
@@ -60,7 +60,7 @@
      <rect>
       <x>980</x>
       <y>1</y>
-      <width>171</width>
+      <width>191</width>
       <height>801</height>
      </rect>
     </property>
@@ -94,7 +94,7 @@
    <widget class="QGroupBox" name="group_box_camera_control">
     <property name="geometry">
      <rect>
-      <x>1160</x>
+      <x>1190</x>
       <y>470</y>
       <width>201</width>
       <height>331</height>
@@ -354,28 +354,51 @@
      <widget class="QLabel" name="label_5">
       <property name="geometry">
        <rect>
-        <x>50</x>
+        <x>30</x>
         <y>100</y>
-        <width>101</width>
+        <width>151</width>
         <height>22</height>
        </rect>
       </property>
       <property name="text">
-       <string>Null scan range</string>
+       <string>Null scan range (um)</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QLineEdit" name="null_scan_range">
+     <widget class="QWidget" name="">
       <property name="geometry">
        <rect>
-        <x>30</x>
+        <x>10</x>
         <y>120</y>
-        <width>151</width>
-        <height>30</height>
+        <width>191</width>
+        <height>28</height>
        </rect>
       </property>
-      <property name="text">
-       <string/>
-      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLineEdit" name="null_scan_range_min">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="null_scan_range_step">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="null_scan_range_max">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
     <widget class="QLineEdit" name="scan_wait">
@@ -1511,7 +1534,7 @@
    <widget class="QPushButton" name="button_mems_to_zero">
     <property name="geometry">
      <rect>
-      <x>1000</x>
+      <x>1010</x>
       <y>810</y>
       <width>131</width>
       <height>30</height>
@@ -1560,7 +1583,7 @@
    <widget class="QGroupBox" name="groupBox">
     <property name="geometry">
      <rect>
-      <x>1160</x>
+      <x>1190</x>
       <y>10</y>
       <width>201</width>
       <height>451</height>
@@ -1569,7 +1592,7 @@
     <property name="title">
      <string>Check list</string>
     </property>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -1819,7 +1842,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1371</width>
+     <width>1400</width>
      <height>27</height>
     </rect>
    </property>
