@@ -80,17 +80,21 @@ class WarmUpMems(object):
      
 
 disableHw = True
-resp = input("\nDisable hardware? [Y/n]\n")
-if resp in ['n', 'N']:
-    disableHw = False
+# resp = input("\nDisable hardware? [Y/n]\n")
+# if resp in ['n', 'N']:
+#     disableHw = False
 warmup_mems = WarmUpMems(disableHw)
 
 import numpy as np
 from matplotlib.backends.backend_qt5agg import (
     NavigationToolbar2QT as NavigationToolbar)
+import matplotlib.pyplot as plt
+import pyqtgraph as pg
+from astropy.io import fits
 
 MEMS_MAX = 2.5
 MEMS_MIN = -2.5
+TARGET_FPS = 1394.
 
 class TableModel(QtCore.QAbstractTableModel):
     """
@@ -235,9 +239,6 @@ class MemsControl(object):
         return released
 
 
-        
-
-
 class DisplayPopUp():
     """Generate pop-up messages for import errors.
     """
@@ -246,7 +247,6 @@ class DisplayPopUp():
         msg.setWindowTitle(title)
         msg.setText(text)
         x = msg.exec_()  # this will show our messagebox
-
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, mirror_handle, mems_fuse, mems_nb_segments, *args, **kwargs):
@@ -306,8 +306,53 @@ class MainWindow(QtWidgets.QMainWindow):
         header.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
         self.table_mems.verticalHeader().setDefaultSectionSize(21)
 
+        # Init RT display
+        self.dk = np.zeros((344, 96), dtype=float)
+        self.rtd = np.zeros((344, 96), dtype=float)
+
+        self.plots_refwg.setText("1")
+        self.plots_average.setText("1")
+        self.plots_width.setText("100")
+        self.time_flux_min.setText("-inf")
+        self.time_flux_max.setText("inf")
+        self.spectral_flux_min.setText("-inf")
+        self.spectral_flux_max.setText("inf")
+
+        self.rt_img_view.hideAxis('left')
+        self.rt_img_view.hideAxis('bottom')
+        self.rt_img_view.setAspectLocked(False)
+        self.rt_img_view.setRange(xRange=[0,96], yRange=[0,344], padding=0)
+        self.rt_img_view.invertY(True)
+
+        ## Build RT image view
+        self.imv_data = pg.ImageItem()
+
+        ### build lookup table
+        pos = np.array([0.0, 0.5, 1.0])
+        color = np.array([[0,0,0,255], [255,128,0,255], [255,255,0,255]], dtype=np.ubyte)
+        map = pg.ColorMap(pos, color)
+        lut = map.getLookupTable(0.0, 1.0, 256)
+        self.imv_data.setLookupTable(lut)
+
+        self.rt_img_view.addItem(self.imv_data)
+
+        self.rois = self.define_rois()
+        for elt in self.rois:
+            self.rt_img_view.addItem(elt)
+
+        ## Built RT spectral flux plot
+        self.time_width = int(self.plots_width.text())
+        self.time_width_old = int(self.plots_width.text())
+        self.time_flux = np.zeros(self.time_width)
+
+        # Timing - monitor fps and trigger refresh
+        self.timer_active = False
+        self.timer = QtCore.QTimer()
+
+
         # Set the buttons
         self.pushButton_exit.clicked.connect(self.exitapp)
+        self.pushButton_dark.clicked.connect(self.click_grab_dark)
         self.piston_up.clicked.connect(self.clickPistonUp)
         self.piston_down.clicked.connect(self.clickPistonDown)
         self.tip_up.clicked.connect(self.clickTipUp)
@@ -327,6 +372,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tt_opt.clicked.connect(self.clickTtOpti)
         self.camera_command.returnPressed.connect(self.send_camera_command)
         self.push_button_save_dir.clicked.connect(self.browse_save_dir)
+        self.pushButton_startstop.clicked.connect(self.startstop_refresh)
+        self.buttonDev.clicked.connect(self.debug)
+
+        # Init label
+        self.label_saturation.setText("")
+
+        # Alarm system preventing the flooding of the History
+        self.alarm_refwg = False
 
         # Debug
         self.count = 0
@@ -334,6 +387,11 @@ class MainWindow(QtWidgets.QMainWindow):
     # =============================================================================
     #   Global control
     # =============================================================================
+    def debug(self):
+        print(self.count)
+        self.count += 1
+        pass
+
     def exitapp(self):
         """Close the GUI and the connection with the mirror.
         """
@@ -344,6 +402,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.addHistoryItem(display_error('M4')[0], False)
             msg = DisplayPopUp('Error', 'Error M4: Mirror was not successfully released.\n'+
                                 'The GUI will close, check error messages in the terminal.')
+        self.timer.stop()
         self.close()
 
     def addHistoryItem(self, text, colortext=True):
@@ -626,6 +685,181 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.addHistoryItem(
                 '!!! Presets NOT loaded or not found!!!', False)
+
+    # =============================================================================
+    # RT images and plots
+    # =============================================================================
+    def startstop_refresh(self):
+        if self.timer_active:
+            self.timer_active = False
+            self.pushButton_startstop.setText('Start video')
+            self.timer.stop()
+        else:
+            self.timer_active = True
+            self.pushButton_startstop.setText('Stop video')
+            try:
+                self.target_fps = float(self.refresh_rate.text())
+                if self.target_fps > 0:
+                    self.addHistoryItem('Refresh rate = %s Hz'%self.target_fps)
+                else:
+                    self.target_fps = 1
+                    self.addHistoryItem('Refresh forces to %s Hz'%self.target_fps, False)
+                    self.refresh_rate.setText(str(self.target_fps))
+            except ValueError:
+                self.target_fps = TARGET_FPS
+                self.addHistoryItem('Refresh forces to %s Hz'%self.target_fps, False)
+                self.refresh_rate.setText(str(self.target_fps))
+
+            self.timer.setInterval(int(np.around(1000. / self.target_fps)))
+            self.timer.timeout.connect(self.refresh)
+            self.timer.start()        
+
+    def define_rois(self):
+        self.roi_p1 = pg.RectROI([35, 323], [61, 15], pen=(255, 0, 0), movable=False, resizable=False, rotatable=False)
+        self.roi_n9 = pg.RectROI([35, 303], [61, 15], pen=(255, 0, 0), movable=False, resizable=False, rotatable=False)
+        self.roi_p2 = pg.RectROI([35, 283], [61, 15], pen=(255, 0, 0), movable=False, resizable=False, rotatable=False)
+        self.roi_n8 = pg.RectROI([35, 263], [61, 15], pen=(255, 0, 0), movable=False, resizable=False, rotatable=False)
+        self.roi_n1 = pg.RectROI([35, 244], [61, 15], pen=(255, 0, 0), movable=False, resizable=False, rotatable=False)
+        self.roi_n12 = pg.RectROI([35, 224], [61, 15], pen=(255, 0, 0), movable=False, resizable=False, rotatable=False)
+        self.roi_n7 = pg.RectROI([35, 204], [61, 15], pen=(255, 0, 0), movable=False, resizable=False, rotatable=False)
+        self.roi_n6 = pg.RectROI([35, 184], [61, 15], pen=(255, 0, 0), movable=False, resizable=False, rotatable=False)
+        self.roi_n11 = pg.RectROI([35, 165], [61, 15], pen=(255, 0, 0), movable=False, resizable=False, rotatable=False)
+        self.roi_n4 = pg.RectROI([35, 145], [61, 15], pen=(255, 0, 0), movable=False, resizable=False, rotatable=False)
+        self.roi_n5 = pg.RectROI([35, 125], [61, 15], pen=(255, 0, 0), movable=False, resizable=False, rotatable=False)
+        self.roi_n10 = pg.RectROI([35, 105], [61, 15], pen=(255, 0, 0), movable=False, resizable=False, rotatable=False)
+        self.roi_n2 = pg.RectROI([35, 85], [61, 15], pen=(255, 0, 0), movable=False, resizable=False, rotatable=False)
+        self.roi_p3 = pg.RectROI([35, 66], [61, 15], pen=(255, 0, 0), movable=False, resizable=False, rotatable=False)
+        self.roi_n3 = pg.RectROI([35, 46], [61, 15], pen=(255, 0, 0), movable=False, resizable=False, rotatable=False)
+        self.roi_p4 = pg.RectROI([35, 26], [61, 15], pen=(255, 0, 0), movable=False, resizable=False, rotatable=False)
+
+        rois = [self.roi_p4, self.roi_n3, self.roi_p3, self.roi_n2,
+                self.roi_n10, self.roi_n5, self.roi_n4, self.roi_n11,
+                self.roi_n6, self.roi_n7, self.roi_n12, self.roi_n1,
+                self.roi_n8, self.roi_p2, self.roi_n9, self.roi_p1]
+
+        idx = np.arange(len(rois))
+
+        for elt in rois:
+            elt.setAcceptedMouseButtons(QtCore.Qt.MouseButton.LeftButton)
+        
+
+        self.roi_p4.sigClicked.connect(lambda x: self.plots_refwg.setText(str(rois.index(self.roi_p4)+1)))
+        self.roi_n3.sigClicked.connect(lambda x: self.plots_refwg.setText(str(rois.index(self.roi_n3)+1)))
+        self.roi_p3.sigClicked.connect(lambda x: self.plots_refwg.setText(str(rois.index(self.roi_p3)+1)))
+        self.roi_n2.sigClicked.connect(lambda x: self.plots_refwg.setText(str(rois.index(self.roi_n2)+1)))
+        self.roi_n10.sigClicked.connect(lambda x: self.plots_refwg.setText(str(rois.index(self.roi_n10)+1)))
+        self.roi_n5.sigClicked.connect(lambda x: self.plots_refwg.setText(str(rois.index(self.roi_n5)+1)))
+        self.roi_n4.sigClicked.connect(lambda x: self.plots_refwg.setText(str(rois.index(self.roi_n4)+1)))
+        self.roi_n11.sigClicked.connect(lambda x: self.plots_refwg.setText(str(rois.index(self.roi_n11)+1)))
+        self.roi_n6.sigClicked.connect(lambda x: self.plots_refwg.setText(str(rois.index(self.roi_n6)+1)))
+        self.roi_n7.sigClicked.connect(lambda x: self.plots_refwg.setText(str(rois.index(self.roi_n7)+1)))
+        self.roi_n12.sigClicked.connect(lambda x: self.plots_refwg.setText(str(rois.index(self.roi_n12)+1)))
+        self.roi_n1.sigClicked.connect(lambda x: self.plots_refwg.setText(str(rois.index(self.roi_n1)+1)))
+        self.roi_n8.sigClicked.connect(lambda x: self.plots_refwg.setText(str(rois.index(self.roi_n8)+1)))
+        self.roi_p2.sigClicked.connect(lambda x: self.plots_refwg.setText(str(rois.index(self.roi_p2)+1)))
+        self.roi_n9.sigClicked.connect(lambda x: self.plots_refwg.setText(str(rois.index(self.roi_n9)+1)))
+        self.roi_p1.sigClicked.connect(lambda x: self.plots_refwg.setText(str(rois.index(self.roi_p1)+1)))
+
+        return rois
+
+
+    def click_grab_dark(self):
+        path_to_dk = '/mnt/96980F95980F72D3/glintData/rt_test/dark.fits'
+        try:
+            self.dk = fits.open(path_to_dk)[0].data.astype(float)
+            self.addHistoryItem('Dark loaded')
+        except FileNotFoundError:
+            self.addHistoryItem('Dark not found', False)
+
+    def refresh(self):
+        self.img_data = np.zeros_like(self.rtd)
+        if self.checkBox_update_display.isChecked():
+            for k in range(int(self.plots_average.text())):
+                path_to_rtd = '/mnt/96980F95980F72D3/glintData/rt_test/new.fits'
+                self.rtd = fits.open(path_to_rtd)[0].data.astype(float)
+                if np.any(self.rtd >= 2**14):
+                    self.label_saturation.setText("Saturation")
+                    self.label_saturation.setStyleSheet("background-color: red;\
+                                                        border: 1px solid black;\
+                                                        color: white;")                                                  
+
+                if self.checkBox_dark.isChecked():
+                    self.rtd -= self.dk
+                # self.rtd = np.random.normal(0, 100, self.rtd.shape)
+                self.img_data += self.rtd
+
+            self.img_data /= max(1., int(self.plots_average.text()))
+            self.imv_data.setImage(self.img_data.T)
+            vmin, vmax = self.change_display_dynamic(self.img_data, self.display_vmin.text(), self.display_vmax.text())
+            self.imv_data.setLevels([vmin, vmax])
+
+            self.update_fluxes()
+
+            try:
+                int(self.plots_refwg.text())
+                if int(self.plots_refwg.text()) >= 1 and int(self.plots_refwg.text()) <= 16:
+                    self.plot_spectral_flux()
+                    self.plot_time_flux()
+                    if self.alarm_refwg:
+                        self.addHistoryItem('Ref WG OK')                    
+                    self.alarm_refwg = False
+                else:
+                    if not self.alarm_refwg:
+                        self.addHistoryItem('No WG selected', False)
+                        self.alarm_refwg = True
+            except ValueError:
+                if not self.alarm_refwg:
+                    self.addHistoryItem('No WG selected', False)
+                    self.alarm_refwg = True
+                pass
+
+    def change_display_dynamic(self, data, vmin, vmax):
+        if vmin == 'inf' or vmin == '-inf' or vmin is None or vmin == '':
+            vmin = data.min()
+        else:
+            try:
+                vmin = float(vmin)
+            except ValueError:
+                vmin = data.min()
+
+        if vmax == 'inf' or vmax == '-inf' or vmax is None or vmax == '':
+            vmax = data.max()
+        else:
+            try:
+                vmax = float(vmax)
+            except ValueError:
+                vmax = data.max()
+
+        return vmin, vmax
+
+    def plot_spectral_flux(self):
+        spectral_flux = self.rois[int(self.plots_refwg.text())-1].getArrayRegion(self.img_data, self.imv_data, axes=(1, 0))
+        spectral_flux = spectral_flux.mean(1)
+        vmin, vmax = self.change_display_dynamic(spectral_flux, self.spectral_flux_min.text(), self.spectral_flux_max.text())
+        self.plots_spectralflux.setYRange(vmin, vmax)
+        self.plots_spectralflux.plot(spectral_flux, clear=True)
+
+    def plot_time_flux(self):
+        instant_flux = self.rois[int(self.plots_refwg.text())-1].getArrayRegion(self.img_data, self.imv_data, axes=(1, 0))
+        instant_flux = instant_flux.mean()
+        if int(self.plots_width.text()) != self.time_width_old:
+            self.time_flux = np.zeros(int(self.plots_width.text()))
+            self.time_width_old = int(self.plots_width.text())
+        self.time_flux[:-1] = self.time_flux[1:]
+        self.time_flux[-1] = instant_flux
+        vmin, vmax = self.change_display_dynamic(self.time_flux, self.time_flux_min.text(), self.time_flux_max.text())
+        self.plots_time_flux.setYRange(vmin, vmax)
+        self.plots_time_flux.plot(self.time_flux, clear=True)
+
+    def update_fluxes(self):
+        labels = [self.flux_p4, self.flux_n3, self.flux_p3, self.flux_n2,
+                  self.flux_n10, self.flux_n5, self.flux_n4, self.flux_n11,
+                  self.flux_n6, self.flux_n7, self.flux_n12, self.flux_n1,
+                  self.flux_n8, self.flux_p2, self.flux_n9, self.flux_p1]
+        fluxes = [elt.getArrayRegion(self.img_data, self.imv_data, axes=(1, 0)).mean() for elt in self.rois]
+        
+        for k in range(len(labels)):
+            labels[k].setText("%.3f"%fluxes[k])
 
     # =============================================================================
     # Nulling optimisation

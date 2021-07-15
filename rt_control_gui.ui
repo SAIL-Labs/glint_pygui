@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1400</width>
-    <height>897</height>
+    <width>1565</width>
+    <height>946</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
    <widget class="QPushButton" name="pushButton_dark">
     <property name="geometry">
      <rect>
-      <x>550</x>
+      <x>740</x>
       <y>50</y>
       <width>91</width>
       <height>30</height>
@@ -38,7 +38,7 @@
    <widget class="QLabel" name="label_11">
     <property name="geometry">
      <rect>
-      <x>460</x>
+      <x>550</x>
       <y>10</y>
       <width>341</width>
       <height>22</height>
@@ -58,7 +58,7 @@
    <widget class="QTableView" name="table_mems">
     <property name="geometry">
      <rect>
-      <x>980</x>
+      <x>1130</x>
       <y>1</y>
       <width>191</width>
       <height>801</height>
@@ -76,7 +76,7 @@
    <widget class="QCheckBox" name="checkBox_dark">
     <property name="geometry">
      <rect>
-      <x>660</x>
+      <x>850</x>
       <y>50</y>
       <width>121</width>
       <height>28</height>
@@ -94,7 +94,7 @@
    <widget class="QGroupBox" name="group_box_camera_control">
     <property name="geometry">
      <rect>
-      <x>1190</x>
+      <x>1340</x>
       <y>470</y>
       <width>201</width>
       <height>331</height>
@@ -202,10 +202,10 @@
    <widget class="QLabel" name="logo">
     <property name="geometry">
      <rect>
-      <x>770</x>
+      <x>900</x>
       <y>720</y>
-      <width>201</width>
-      <height>121</height>
+      <width>211</width>
+      <height>131</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -224,8 +224,8 @@
    <widget class="QGroupBox" name="group_box_nuller_optimisation">
     <property name="geometry">
      <rect>
-      <x>520</x>
-      <y>310</y>
+      <x>370</x>
+      <y>320</y>
       <width>231</width>
       <height>531</height>
      </rect>
@@ -367,7 +367,7 @@
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -457,9 +457,9 @@
    <widget class="QListWidget" name="qlist_history">
     <property name="geometry">
      <rect>
-      <x>770</x>
+      <x>900</x>
       <y>340</y>
-      <width>201</width>
+      <width>211</width>
       <height>371</height>
      </rect>
     </property>
@@ -467,10 +467,10 @@
    <widget class="QGroupBox" name="group_box_manual_mems_control">
     <property name="geometry">
      <rect>
-      <x>280</x>
+      <x>640</x>
       <y>320</y>
       <width>221</width>
-      <height>521</height>
+      <height>531</height>
      </rect>
     </property>
     <property name="font">
@@ -485,7 +485,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>20</y>
+       <y>70</y>
        <width>201</width>
        <height>191</height>
       </rect>
@@ -497,7 +497,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>40</y>
+        <y>80</y>
         <width>51</width>
         <height>22</height>
        </rect>
@@ -513,7 +513,7 @@
       <property name="geometry">
        <rect>
         <x>80</x>
-        <y>40</y>
+        <y>80</y>
         <width>31</width>
         <height>22</height>
        </rect>
@@ -529,7 +529,7 @@
       <property name="geometry">
        <rect>
         <x>140</x>
-        <y>40</y>
+        <y>80</y>
         <width>31</width>
         <height>22</height>
        </rect>
@@ -545,7 +545,7 @@
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>70</y>
+        <y>110</y>
         <width>31</width>
         <height>30</height>
        </rect>
@@ -558,7 +558,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>110</y>
+        <y>150</y>
         <width>51</width>
         <height>30</height>
        </rect>
@@ -571,7 +571,7 @@
       <property name="geometry">
        <rect>
         <x>80</x>
-        <y>70</y>
+        <y>110</y>
         <width>31</width>
         <height>30</height>
        </rect>
@@ -584,7 +584,7 @@
       <property name="geometry">
        <rect>
         <x>70</x>
-        <y>110</y>
+        <y>150</y>
         <width>51</width>
         <height>30</height>
        </rect>
@@ -597,7 +597,7 @@
       <property name="geometry">
        <rect>
         <x>140</x>
-        <y>70</y>
+        <y>110</y>
         <width>31</width>
         <height>30</height>
        </rect>
@@ -610,7 +610,7 @@
       <property name="geometry">
        <rect>
         <x>130</x>
-        <y>110</y>
+        <y>150</y>
         <width>51</width>
         <height>30</height>
        </rect>
@@ -623,7 +623,7 @@
       <property name="geometry">
        <rect>
         <x>40</x>
-        <y>150</y>
+        <y>40</y>
         <width>31</width>
         <height>22</height>
        </rect>
@@ -636,7 +636,7 @@
       <property name="geometry">
        <rect>
         <x>90</x>
-        <y>150</y>
+        <y>40</y>
         <width>41</width>
         <height>30</height>
        </rect>
@@ -647,7 +647,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>220</y>
+       <y>280</y>
        <width>201</width>
        <height>241</height>
       </rect>
@@ -659,7 +659,7 @@
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>30</y>
+        <y>70</y>
         <width>31</width>
         <height>22</height>
        </rect>
@@ -675,7 +675,7 @@
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>70</y>
+        <y>30</y>
         <width>31</width>
         <height>22</height>
        </rect>
@@ -707,7 +707,7 @@
       <property name="geometry">
        <rect>
         <x>70</x>
-        <y>30</y>
+        <y>70</y>
         <width>51</width>
         <height>30</height>
        </rect>
@@ -720,7 +720,7 @@
       <property name="geometry">
        <rect>
         <x>130</x>
-        <y>30</y>
+        <y>70</y>
         <width>61</width>
         <height>30</height>
        </rect>
@@ -733,7 +733,7 @@
       <property name="geometry">
        <rect>
         <x>70</x>
-        <y>70</y>
+        <y>30</y>
         <width>51</width>
         <height>30</height>
        </rect>
@@ -746,7 +746,7 @@
       <property name="geometry">
        <rect>
         <x>130</x>
-        <y>70</y>
+        <y>30</y>
         <width>61</width>
         <height>30</height>
        </rect>
@@ -838,7 +838,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>470</y>
+       <y>40</y>
        <width>141</width>
        <height>22</height>
       </rect>
@@ -851,7 +851,7 @@
      <property name="geometry">
       <rect>
        <x>150</x>
-       <y>470</y>
+       <y>40</y>
        <width>41</width>
        <height>30</height>
       </rect>
@@ -861,9 +861,9 @@
    <widget class="QGroupBox" name="groupBox_camdisp">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>0</x>
       <y>10</y>
-      <width>261</width>
+      <width>361</width>
       <height>831</height>
      </rect>
     </property>
@@ -874,7 +874,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>50</y>
+       <y>90</y>
        <width>21</width>
        <height>22</height>
       </rect>
@@ -888,29 +888,11 @@
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#204a87;&quot;&gt;P4&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_24">
-     <property name="geometry">
-      <rect>
-       <x>40</x>
-       <y>800</y>
-       <width>101</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>None for +/-inf </string>
-     </property>
-    </widget>
     <widget class="QCheckBox" name="checkBox_update_display">
      <property name="geometry">
       <rect>
        <x>130</x>
-       <y>730</y>
+       <y>760</y>
        <width>131</width>
        <height>28</height>
       </rect>
@@ -923,12 +905,15 @@
      <property name="text">
       <string>Update display</string>
      </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
     </widget>
     <widget class="QLabel" name="label_9">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>730</y>
+       <y>760</y>
        <width>41</width>
        <height>22</height>
       </rect>
@@ -939,14 +924,14 @@
       </font>
      </property>
      <property name="text">
-      <string>v min</string>
+      <string>Min</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_vmax">
+    <widget class="QLineEdit" name="display_vmax">
      <property name="geometry">
       <rect>
        <x>60</x>
-       <y>770</y>
+       <y>800</y>
        <width>51</width>
        <height>30</height>
       </rect>
@@ -957,11 +942,11 @@
       </font>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_vmin">
+    <widget class="QLineEdit" name="display_vmin">
      <property name="geometry">
       <rect>
        <x>60</x>
-       <y>730</y>
+       <y>760</y>
        <width>51</width>
        <height>30</height>
       </rect>
@@ -976,7 +961,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>770</y>
+       <y>800</y>
        <width>41</width>
        <height>22</height>
       </rect>
@@ -987,24 +972,14 @@
       </font>
      </property>
      <property name="text">
-      <string>v max</string>
-     </property>
-    </widget>
-    <widget class="MplWidget" name="widget_camera_disp" native="true">
-     <property name="geometry">
-      <rect>
-       <x>39</x>
-       <y>39</y>
-       <width>161</width>
-       <height>681</height>
-      </rect>
+      <string>Max</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_16">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>80</y>
+       <y>130</y>
        <width>21</width>
        <height>22</height>
       </rect>
@@ -1022,7 +997,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>110</y>
+       <y>170</y>
        <width>21</width>
        <height>22</height>
       </rect>
@@ -1040,7 +1015,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>140</y>
+       <y>210</y>
        <width>21</width>
        <height>22</height>
       </rect>
@@ -1058,7 +1033,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>170</y>
+       <y>260</y>
        <width>31</width>
        <height>22</height>
       </rect>
@@ -1076,7 +1051,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>200</y>
+       <y>300</y>
        <width>31</width>
        <height>22</height>
       </rect>
@@ -1094,7 +1069,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>230</y>
+       <y>340</y>
        <width>31</width>
        <height>22</height>
       </rect>
@@ -1112,7 +1087,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>260</y>
+       <y>380</y>
        <width>31</width>
        <height>22</height>
       </rect>
@@ -1130,7 +1105,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>290</y>
+       <y>420</y>
        <width>31</width>
        <height>22</height>
       </rect>
@@ -1148,7 +1123,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>320</y>
+       <y>460</y>
        <width>31</width>
        <height>22</height>
       </rect>
@@ -1166,7 +1141,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>350</y>
+       <y>500</y>
        <width>31</width>
        <height>22</height>
       </rect>
@@ -1184,7 +1159,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>380</y>
+       <y>550</y>
        <width>31</width>
        <height>22</height>
       </rect>
@@ -1202,7 +1177,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>410</y>
+       <y>590</y>
        <width>31</width>
        <height>22</height>
       </rect>
@@ -1220,7 +1195,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>440</y>
+       <y>630</y>
        <width>31</width>
        <height>22</height>
       </rect>
@@ -1238,7 +1213,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>470</y>
+       <y>670</y>
        <width>31</width>
        <height>22</height>
       </rect>
@@ -1256,7 +1231,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>500</y>
+       <y>710</y>
        <width>31</width>
        <height>22</height>
       </rect>
@@ -1270,26 +1245,331 @@
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#204a87;&quot;&gt;P1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="cam_dyn_apply">
+    <widget class="PlotWidget" name="rt_img_view">
      <property name="geometry">
       <rect>
-       <x>160</x>
-       <y>770</y>
-       <width>51</width>
-       <height>30</height>
+       <x>35</x>
+       <y>31</y>
+       <width>231</width>
+       <height>721</height>
       </rect>
      </property>
+    </widget>
+    <widget class="QLabel" name="label_saturation">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>791</y>
+       <width>141</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>18</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
      <property name="text">
-      <string>Apply</string>
+      <string>Saturation</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="flux_n9">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>670</y>
+       <width>71</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Flux N9</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="flux_p3">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>170</y>
+       <width>71</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#204a87;&quot;&gt;Flux P3&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="flux_n8">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>590</y>
+       <width>61</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Flux N8</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="flux_n7">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>460</y>
+       <width>71</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Flux N7</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="flux_p4">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>90</y>
+       <width>71</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#204a87;&quot;&gt;Flux P4&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="flux_n1">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>550</y>
+       <width>71</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Flux N1</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="flux_p2">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>630</y>
+       <width>71</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#204a87;&quot;&gt;Flux P2&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="flux_n12">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>500</y>
+       <width>71</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Flux N12</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="flux_p1">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>710</y>
+       <width>71</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#204a87;&quot;&gt;Flux P1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="flux_n10">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>260</y>
+       <width>71</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Flux N10</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="flux_n5">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>300</y>
+       <width>71</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Flux N5</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="flux_n4">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>340</y>
+       <width>71</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Flux N4</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="flux_n11">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>380</y>
+       <width>71</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Flux N11</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="flux_n6">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>420</y>
+       <width>71</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Flux N6</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="flux_n3">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>130</y>
+       <width>71</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Flux N3</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="flux_n2">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>210</y>
+       <width>71</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Flux N2</string>
      </property>
     </widget>
    </widget>
    <widget class="QLabel" name="label_40">
     <property name="geometry">
      <rect>
-      <x>770</x>
+      <x>900</x>
       <y>320</y>
-      <width>41</width>
+      <width>61</width>
       <height>22</height>
      </rect>
     </property>
@@ -1299,15 +1579,15 @@
      </font>
     </property>
     <property name="text">
-     <string>Dialog</string>
+     <string>History</string>
     </property>
    </widget>
    <widget class="QGroupBox" name="groupBox_plots">
     <property name="geometry">
      <rect>
-      <x>280</x>
+      <x>370</x>
       <y>80</y>
-      <width>691</width>
+      <width>751</width>
       <height>231</height>
      </rect>
     </property>
@@ -1319,7 +1599,7 @@
     <property name="title">
      <string>Plots</string>
     </property>
-    <widget class="QLineEdit" name="plots_lineEdit_refwg">
+    <widget class="QLineEdit" name="plots_refwg">
      <property name="geometry">
       <rect>
        <x>70</x>
@@ -1370,7 +1650,7 @@
       <string>Average</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="plots_lineEdit_average">
+    <widget class="QLineEdit" name="plots_average">
      <property name="geometry">
       <rect>
        <x>70</x>
@@ -1403,7 +1683,7 @@
       <string>Width</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="plots_lineEdit_width">
+    <widget class="QLineEdit" name="plots_width">
      <property name="geometry">
       <rect>
        <x>70</x>
@@ -1436,10 +1716,10 @@
       <string>Min</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="plots_lineEdit_min">
+    <widget class="QLineEdit" name="time_flux_min">
      <property name="geometry">
       <rect>
-       <x>70</x>
+       <x>50</x>
        <y>150</y>
        <width>51</width>
        <height>30</height>
@@ -1451,10 +1731,10 @@
       </font>
      </property>
     </widget>
-    <widget class="QLineEdit" name="plots_lineEdit_max">
+    <widget class="QLineEdit" name="time_flux_max">
      <property name="geometry">
       <rect>
-       <x>70</x>
+       <x>50</x>
        <y>190</y>
        <width>51</width>
        <height>30</height>
@@ -1510,31 +1790,61 @@
       <string>Spectral flux</string>
      </property>
     </widget>
-    <widget class="MplWidget" name="plots_widget_timeflux" native="true">
+    <widget class="PlotWidget" name="plots_time_flux">
      <property name="geometry">
       <rect>
-       <x>130</x>
+       <x>170</x>
        <y>50</y>
-       <width>271</width>
+       <width>281</width>
        <height>171</height>
       </rect>
      </property>
     </widget>
-    <widget class="MplWidget" name="plots_widget_spectralflux" native="true">
+    <widget class="PlotWidget" name="plots_spectralflux">
      <property name="geometry">
       <rect>
-       <x>410</x>
-       <y>50</y>
-       <width>271</width>
+       <x>455</x>
+       <y>51</y>
+       <width>291</width>
        <height>171</height>
       </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="spectral_flux_max">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>190</y>
+       <width>51</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="spectral_flux_min">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>150</y>
+       <width>51</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
      </property>
     </widget>
    </widget>
    <widget class="QPushButton" name="button_mems_to_zero">
     <property name="geometry">
      <rect>
-      <x>1010</x>
+      <x>1160</x>
       <y>810</y>
       <width>131</width>
       <height>30</height>
@@ -1547,7 +1857,7 @@
    <widget class="QPushButton" name="pushButton_startstop">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>560</x>
       <y>50</y>
       <width>161</width>
       <height>30</height>
@@ -1559,13 +1869,13 @@
      </font>
     </property>
     <property name="text">
-     <string>Start/Stop Video</string>
+     <string>Start Video</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_exit">
     <property name="geometry">
      <rect>
-      <x>780</x>
+      <x>970</x>
       <y>50</y>
       <width>91</width>
       <height>31</height>
@@ -1583,7 +1893,7 @@
    <widget class="QGroupBox" name="groupBox">
     <property name="geometry">
      <rect>
-      <x>1190</x>
+      <x>1340</x>
       <y>10</y>
       <width>201</width>
       <height>451</height>
@@ -1836,13 +2146,54 @@
      </layout>
     </widget>
    </widget>
+   <widget class="QLineEdit" name="refresh_rate">
+    <property name="geometry">
+     <rect>
+      <x>492</x>
+      <y>50</y>
+      <width>61</width>
+      <height>30</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_24">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>50</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Refresh rate (Hz)</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="buttonDev">
+    <property name="geometry">
+     <rect>
+      <x>1400</x>
+      <y>810</y>
+      <width>91</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Dev</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1400</width>
+     <width>1565</width>
      <height>27</height>
     </rect>
    </property>
@@ -1851,12 +2202,91 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>PlotWidget</class>
+   <extends>QGraphicsView</extends>
+   <header>pyqtgraph</header>
+  </customwidget>
+  <customwidget>
    <class>MplWidget</class>
    <extends>QWidget</extends>
    <header>mplwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>refresh_rate</tabstop>
+  <tabstop>pushButton_startstop</tabstop>
+  <tabstop>pushButton_dark</tabstop>
+  <tabstop>checkBox_dark</tabstop>
+  <tabstop>plots_refwg</tabstop>
+  <tabstop>plots_average</tabstop>
+  <tabstop>plots_width</tabstop>
+  <tabstop>time_flux_min</tabstop>
+  <tabstop>spectral_flux_min</tabstop>
+  <tabstop>time_flux_max</tabstop>
+  <tabstop>spectral_flux_max</tabstop>
+  <tabstop>display_vmin</tabstop>
+  <tabstop>display_vmax</tabstop>
+  <tabstop>checkBox_update_display</tabstop>
+  <tabstop>scan_wait</tabstop>
+  <tabstop>num_loops</tabstop>
+  <tabstop>tt_opt</tabstop>
+  <tabstop>seg_to_move</tabstop>
+  <tabstop>null_to_scan</tabstop>
+  <tabstop>null_scan_range_min</tabstop>
+  <tabstop>null_scan_range_step</tabstop>
+  <tabstop>null_scan_range_max</tabstop>
+  <tabstop>null_opti</tabstop>
+  <tabstop>segment_selection</tabstop>
+  <tabstop>mems_step</tabstop>
+  <tabstop>piston_up</tabstop>
+  <tabstop>piston_down</tabstop>
+  <tabstop>tip_up</tabstop>
+  <tabstop>tip_down</tabstop>
+  <tabstop>tilt_up</tabstop>
+  <tabstop>tilt_down</tabstop>
+  <tabstop>on_set</tabstop>
+  <tabstop>on_restore</tabstop>
+  <tabstop>off_set</tabstop>
+  <tabstop>off_restore</tabstop>
+  <tabstop>flat_set</tabstop>
+  <tabstop>flat_restore</tabstop>
+  <tabstop>preset_path</tabstop>
+  <tabstop>preset_save</tabstop>
+  <tabstop>preset_restore</tabstop>
+  <tabstop>camera_command</tabstop>
+  <tabstop>line_edit_save_dir</tabstop>
+  <tabstop>push_button_save_dir</tabstop>
+  <tabstop>line_edit_file_name</tabstop>
+  <tabstop>checkBox</tabstop>
+  <tabstop>buttonDev</tabstop>
+  <tabstop>button_mems_to_zero</tabstop>
+  <tabstop>pushButton_exit</tabstop>
+  <tabstop>rt_img_view</tabstop>
+  <tabstop>checkBox_7</tabstop>
+  <tabstop>checkBox_20</tabstop>
+  <tabstop>checkBox_6</tabstop>
+  <tabstop>checkBox_8</tabstop>
+  <tabstop>checkBox_3</tabstop>
+  <tabstop>checkBox_4</tabstop>
+  <tabstop>checkBox_5</tabstop>
+  <tabstop>checkBox_9</tabstop>
+  <tabstop>checkBox_10</tabstop>
+  <tabstop>checkBox_15</tabstop>
+  <tabstop>checkBox_11</tabstop>
+  <tabstop>checkBox_12</tabstop>
+  <tabstop>checkBox_13</tabstop>
+  <tabstop>checkBox_14</tabstop>
+  <tabstop>checkBox_16</tabstop>
+  <tabstop>checkBox_17</tabstop>
+  <tabstop>table_mems</tabstop>
+  <tabstop>checkBox_19</tabstop>
+  <tabstop>plots_spectralflux</tabstop>
+  <tabstop>qlist_history</tabstop>
+  <tabstop>checkBox_18</tabstop>
+  <tabstop>plots_time_flux</tabstop>
+  <tabstop>checkBox_2</tabstop>
+ </tabstops>
  <resources>
   <include location="ressources.qrc"/>
  </resources>
@@ -1868,12 +2298,12 @@
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>708</x>
-     <y>89</y>
+     <x>760</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
-     <x>639</x>
-     <y>92</y>
+     <x>650</x>
+     <y>106</y>
     </hint>
    </hints>
   </connection>
