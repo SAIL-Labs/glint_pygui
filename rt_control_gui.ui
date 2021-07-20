@@ -101,7 +101,7 @@
      </rect>
     </property>
     <property name="title">
-     <string>Camera Control</string>
+     <string>Camera Control (not active)</string>
     </property>
     <widget class="QCheckBox" name="checkBox">
      <property name="geometry">
