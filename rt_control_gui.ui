@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1565</width>
-    <height>946</height>
+    <width>1549</width>
+    <height>912</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -59,7 +59,7 @@
     <property name="geometry">
      <rect>
       <x>1130</x>
-      <y>1</y>
+      <y>11</y>
       <width>191</width>
       <height>801</height>
      </rect>
@@ -95,7 +95,7 @@
     <property name="geometry">
      <rect>
       <x>1340</x>
-      <y>470</y>
+      <y>480</y>
       <width>201</width>
       <height>331</height>
      </rect>
@@ -255,7 +255,7 @@
        <rect>
         <x>10</x>
         <y>30</y>
-        <width>181</width>
+        <width>191</width>
         <height>30</height>
        </rect>
       </property>
@@ -263,7 +263,7 @@
        <string>Do TT optimisation</string>
       </property>
      </widget>
-     <widget class="MplWidget" name="widget_injection_display_map" native="true">
+     <widget class="PlotWidget" name="tt_map_display">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -864,7 +864,7 @@
       <x>0</x>
       <y>10</y>
       <width>361</width>
-      <height>831</height>
+      <height>841</height>
      </rect>
     </property>
     <property name="title">
@@ -1845,7 +1845,7 @@
     <property name="geometry">
      <rect>
       <x>1160</x>
-      <y>810</y>
+      <y>820</y>
       <width>131</width>
       <height>30</height>
      </rect>
@@ -1907,7 +1907,7 @@
       <rect>
        <x>10</x>
        <y>30</y>
-       <width>183</width>
+       <width>227</width>
        <height>420</height>
       </rect>
      </property>
@@ -1923,7 +1923,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Click on Start/Stop Video</string>
+         <string>Check fps &amp; tint</string>
         </property>
        </widget>
       </item>
@@ -1935,7 +1935,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Check fps &amp; tint</string>
+         <string>Click on Start/Stop Video</string>
         </property>
        </widget>
       </item>
@@ -2067,7 +2067,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Save in On preset</string>
+         <string>Save in &quot;On&quot; preset</string>
         </property>
        </widget>
       </item>
@@ -2178,7 +2178,7 @@
     <property name="geometry">
      <rect>
       <x>1400</x>
-      <y>810</y>
+      <y>820</y>
       <width>91</width>
       <height>30</height>
      </rect>
@@ -2193,7 +2193,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1565</width>
+     <width>1549</width>
      <height>27</height>
     </rect>
    </property>
@@ -2205,12 +2205,6 @@
    <class>PlotWidget</class>
    <extends>QGraphicsView</extends>
    <header>pyqtgraph</header>
-  </customwidget>
-  <customwidget>
-   <class>MplWidget</class>
-   <extends>QWidget</extends>
-   <header>mplwidget.h</header>
-   <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>
@@ -2298,11 +2292,11 @@
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>760</x>
+     <x>850</x>
      <y>104</y>
     </hint>
     <hint type="destinationlabel">
-     <x>650</x>
+     <x>740</x>
      <y>106</y>
     </hint>
    </hints>

@@ -4,7 +4,7 @@ import sys
 sys.path.append(os.path.abspath('mems/'))
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5 import QtWidgets, QtCore, QtGui, QtTest
 import IrisAO_PythonAPI as IrisAO_API
 
 def display_error(err_code):
@@ -89,28 +89,33 @@ import numpy as np
 from matplotlib.backends.backend_qt5agg import (
     NavigationToolbar2QT as NavigationToolbar)
 import matplotlib.pyplot as plt
+from scipy.interpolate import interp2d
 import pyqtgraph as pg
 from astropy.io import fits
+import datetime
 
 MEMS_MAX = 2.5
 MEMS_MIN = -2.5
-TARGET_FPS = 1394.
+TARGET_FPS = 10.
+SCAN_WAIT = 0.1
+TTX_MIN, TTX_MAX = -2.5, 2.5
+TTY_MIN, TTY_MAX = -2.5, 2.5
 
 class TableModel(QtCore.QAbstractTableModel):
     """
     The methods are a compilation of what was found on the internet, I don't know how they work but they do.
     """
 
-    def __init__(self, data):
+    def __init__(self, data, mems_comm):
         super(TableModel, self).__init__()
         self._data = data
+        self._mems = mems_comm
 
     def data(self, index, role):
         """
         This method displays the table
         """
         if role == Qt.DisplayRole:
-            # Note: self._data[index.row()][index.column()] will also work
             value = self._data[index.row(), index.column()]
             # return str(value)
             return '{:.4f}'.format(round(value, 4))
@@ -134,7 +139,8 @@ class TableModel(QtCore.QAbstractTableModel):
         if role == Qt.EditRole:
             try:
                 self._data[index.row(), index.column()] = value
-            except ValueError:  # If cell is blank, string cnnot be converted in float so we pass
+                self._comm_with_mems(index.row())
+            except ValueError:  # If cell is blank, string cannot be converted in float so we pass
                 pass
             return True
 
@@ -151,6 +157,20 @@ class TableModel(QtCore.QAbstractTableModel):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
             return ['Piston', 'Tip', 'Tilt'][section]
         return QtCore.QAbstractTableModel.headerData(self, section, orientation, role)
+
+    def _comm_with_mems(self, row):
+        seg_list = [row + 1]
+        pos_list = [list(self._data[row])]
+        
+        fuse_send = self._mems.send_command(seg_list, pos_list)
+
+        if fuse_send == False:
+            msg = display_error('M5')
+            popup = DisplayPopUp('Error', msg[1])
+        positions, fuse_get_positions = self._mems.get_positions(seg_list)
+        self._data[row] = positions
+        if fuse_get_positions == False:
+            popup = DisplayPopUp('Error', display_error('M3')[1])    
 
 
 class MemsControl(object):
@@ -179,7 +199,7 @@ class MemsControl(object):
 
         Send a command to move a list of segments to a given position (piston, tip and tilt).
 
-        :param segment_list: list of segments to move
+        :param segment_list: list of segments to move. Segment ID starst at 1.
         :type segment_list: list
         :param pos_list: list of list/tuple of piston/tip/tilt in um/mrad/mrad.
         :type pos_list: list
@@ -284,41 +304,43 @@ class MainWindow(QtWidgets.QMainWindow):
         self.segment_id = 0
 
         # Init fields
-        self.segment_selection.setText(str(self.segment_id))
-        self.mems_step.setText(str(self.step_seg))
-        self.scan_wait.setText('0.1')
-        self.num_loops.setText('1')
-        self.seg_to_move.setText('1')
-        self.null_to_scan.setText('1')
-        self.null_scan_range_min.setText("-2.5")
-        self.null_scan_range_step.setText("0.5")
-        self.null_scan_range_max.setText("2.5")
+        self.segment_selection.setText(str(self.segment_id)) # is created in *.ui file
+        self.mems_step.setText(str(self.step_seg)) # is created in *.ui file
+        self.scan_wait.setText(str(SCAN_WAIT)) # is created in *.ui file
+        self.num_loops.setText('1') # is created in *.ui file
+        self.seg_to_move.setText('1') # is created in *.ui file
+        self.null_to_scan.setText('1') # is created in *.ui file
+        self.null_scan_range_min.setText("-2.5") # is created in *.ui file
+        self.null_scan_range_step.setText("0.5") # is created in *.ui file
+        self.null_scan_range_max.setText("2.5") # is created in *.ui file
 
         # Init MEMS table
         self.mems_values = np.zeros((self.nb_segments, 3))
-        self.model = TableModel(self.mems_values)
-        self.table_mems.setModel(self.model)
+        self.model = TableModel(self.mems_values, self.mems)
+        self.table_mems.setModel(self.model) # is created in *.ui file
 
-        # Resize it to fit the attributed area
+
+        ## Resize it to fit the attributed area
         header = self.table_mems.horizontalHeader()
         header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
         header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
         header.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
         self.table_mems.verticalHeader().setDefaultSectionSize(21)
 
+
         # Init RT display
         self.dk = np.zeros((344, 96), dtype=float)
         self.rtd = np.zeros((344, 96), dtype=float)
 
-        self.plots_refwg.setText("1")
-        self.plots_average.setText("1")
-        self.plots_width.setText("100")
-        self.time_flux_min.setText("-inf")
-        self.time_flux_max.setText("inf")
-        self.spectral_flux_min.setText("-inf")
-        self.spectral_flux_max.setText("inf")
+        self.plots_refwg.setText("1") # is created in *.ui file
+        self.plots_average.setText("1") # is created in *.ui file
+        self.plots_width.setText("100") # is created in *.ui file
+        self.time_flux_min.setText("-inf") # is created in *.ui file
+        self.time_flux_max.setText("inf") # is created in *.ui file
+        self.spectral_flux_min.setText("-inf") # is created in *.ui file
+        self.spectral_flux_max.setText("inf") # is created in *.ui file
 
-        self.rt_img_view.hideAxis('left')
+        self.rt_img_view.hideAxis('left') # is created in *.ui file
         self.rt_img_view.hideAxis('bottom')
         self.rt_img_view.setAspectLocked(False)
         self.rt_img_view.setRange(xRange=[0,96], yRange=[0,344], padding=0)
@@ -344,6 +366,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self.time_width = int(self.plots_width.text())
         self.time_width_old = int(self.plots_width.text())
         self.time_flux = np.zeros(self.time_width)
+
+        # Init TT map display
+        self.tt_map_display.setAspectLocked(False)
+        self.tt_map_display.setRange(xRange=[-2.5, 2.5], yRange=[-2.5, 2.5], padding=0)
+        self.imv_tt = pg.ImageItem()
+        self.imv_tt.setLookupTable(lut)
+        self.tt_map_display.addItem(self.imv_tt)
+        
+
+        # Init TT other stuff
+        self.tt_max = []
 
         # Timing - monitor fps and trigger refresh
         self.timer_active = False
@@ -388,7 +421,7 @@ class MainWindow(QtWidgets.QMainWindow):
     #   Global control
     # =============================================================================
     def debug(self):
-        print(self.count)
+        print(self.tt_max)
         self.count += 1
         pass
 
@@ -400,8 +433,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.addHistoryItem('Mirror released')
         else:
             self.addHistoryItem(display_error('M4')[0], False)
-            msg = DisplayPopUp('Error', 'Error M4: Mirror was not successfully released.\n'+
-                                'The GUI will close, check error messages in the terminal.')
+            msg = DisplayPopUp('Error', display_error('M4')[1])
         self.timer.stop()
         self.close()
 
@@ -456,7 +488,16 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.addHistoryItem(display_error('M2')[0], False)
 
-    # =============================================================================
+    def move_mems_and_updateTable(self, column):
+        self._move_mems()
+
+        if column not in [0, 1, 2]:
+            for it in range(3):
+                self.updateTable(self.segment_id, it)
+        else:
+            self.updateTable(self.segment_id, column)
+
+    # ===========================================================================
     #   Move MEMS
     # =============================================================================
     def _foolproof(self, arr):
@@ -470,6 +511,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.segment_id = int(self.segment_selection.text())
 
     def _move_mems(self):
+        self.mems_values = self._foolproof(self.mems_values)
         if self.segment_id == 0:
             seg_list = list(np.arange(self.nb_segments) + 1)
             pos_list = [list(elt) for elt in self.mems_values]
@@ -482,7 +524,8 @@ class MainWindow(QtWidgets.QMainWindow):
         if fuse_send == False:
             self.addHistoryItem(display_error('M5')[0], False)        
         positions, fuse_get_positions = self.mems.get_positions(seg_list)
-        self.mems_values[:] = positions
+        seg_list = list(np.array(seg_list) - 1)
+        self.mems_values[seg_list, :] = positions
         if fuse_get_positions == False:
             self.addHistoryItem(display_error('M3')[0], False)
 
@@ -497,13 +540,12 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.mems_values[self.segment_id-1, 0] += self.step
 
-        self.mems_values = self._foolproof(self.mems_values)
+        # self.mems_values = self._foolproof(self.mems_values)
 
         self.addHistoryItem(
                 'Piston Up (Seg: '+str(self.segment_id)+'/Step:'+str(self.step)+')')
 
-        self._move_mems()
-        self.updateTable(self.segment_id, 0)
+        self.move_mems_and_updateTable(0)
 
     def clickPistonDown(self):
         """Decrease the piston of the selected segment (field *Segment*) by the value in the field *Step*.
@@ -516,13 +558,12 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.mems_values[self.segment_id-1, 0] -= self.step
 
-        self.mems_values = self._foolproof(self.mems_values)
+        # self.mems_values = self._foolproof(self.mems_values)
 
         self.addHistoryItem(
             'Piston Down (Seg: '+str(self.segment_id)+'/Step:'+str(self.step)+')')
-
-        self._move_mems()
-        self.updateTable(self.segment_id, 0)
+        
+        self.move_mems_and_updateTable(0)
 
     def clickTipUp(self):
         """Increase the tip of the selected segment (field *Segment*) by the value in the field *Step*.
@@ -535,12 +576,12 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.mems_values[self.segment_id-1, 1] += self.step
 
-        self.mems_values = self._foolproof(self.mems_values)
+        # self.mems_values = self._foolproof(self.mems_values)
 
         self.addHistoryItem(
             'Tip Up (Seg: '+str(self.segment_id)+'/Step:'+str(self.step)+')')
-        self._move_mems()
-        self.updateTable(self.segment_id, 1)
+
+        self.move_mems_and_updateTable(1)
 
     def clickTipDown(self):
         """Decrease the tip of the selected segment (field *Segment*) by the value in the field *Step*.
@@ -553,12 +594,10 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.mems_values[self.segment_id-1, 1] -= self.step
 
-        self.mems_values = self._foolproof(self.mems_values)
-
         self.addHistoryItem(
             'Tip Down (Seg: '+str(self.segment_id)+'/Step:'+str(self.step)+')')
-        self._move_mems()
-        self.updateTable(self.segment_id, 1)
+
+        self.move_mems_and_updateTable(1)
 
     def clickTiltUp(self):
         """Increase the tilt of the selected segment (field *Segment*) by the value in the field *Step*.
@@ -571,12 +610,12 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.mems_values[self.segment_id-1, 2] += self.step
 
-        self.mems_values = self._foolproof(self.mems_values)
+        # self.mems_values = self._foolproof(self.mems_values)
 
         self.addHistoryItem(
             'Tilt Up (Seg: '+str(self.segment_id)+'/Step:'+str(self.step)+')')
-        self._move_mems()
-        self.updateTable(self.segment_id, 2)
+
+        self.move_mems_and_updateTable(2)
 
     def clickTiltDown(self):
         """Decrease the tilt of the selected segment (field *Segment*) by the value in the field *Step*.
@@ -589,12 +628,12 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.mems_values[self.segment_id-1, 2] -= self.step
 
-        self.mems_values = self._foolproof(self.mems_values)
+        # self.mems_values = self._foolproof(self.mems_values)
 
         self.addHistoryItem(
             'Tilt Down (Seg: '+str(self.segment_id)+'/Step:'+str(self.step)+')')
-        self._move_mems()
-        self.updateTable(self.segment_id, 2)
+
+        self.move_mems_and_updateTable(2)
 
     # =============================================================================
     #   Presets
@@ -690,12 +729,10 @@ class MainWindow(QtWidgets.QMainWindow):
     # RT images and plots
     # =============================================================================
     def startstop_refresh(self):
-        if self.timer_active:
-            self.timer_active = False
+        if self.timer.isActive():
             self.pushButton_startstop.setText('Start video')
             self.timer.stop()
         else:
-            self.timer_active = True
             self.pushButton_startstop.setText('Stop video')
             try:
                 self.target_fps = float(self.refresh_rate.text())
@@ -773,22 +810,23 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def refresh(self):
         self.img_data = np.zeros_like(self.rtd)
+        for k in range(int(self.plots_average.text())):
+            path_to_rtd = '/mnt/96980F95980F72D3/glintData/rt_test/new.fits'
+            self.rtd = fits.open(path_to_rtd)[0].data.astype(float)
+            if np.any(self.rtd >= 2**14):
+                self.label_saturation.setText("Saturation")
+                self.label_saturation.setStyleSheet("background-color: red;\
+                                                    border: 1px solid black;\
+                                                    color: white;")                                                  
+
+            if self.checkBox_dark.isChecked():
+                self.rtd -= self.dk
+            self.rtd += np.random.normal(0, 5, self.rtd.shape)
+            self.img_data += self.rtd
+
+        self.img_data /= max(1., int(self.plots_average.text()))
+
         if self.checkBox_update_display.isChecked():
-            for k in range(int(self.plots_average.text())):
-                path_to_rtd = '/mnt/96980F95980F72D3/glintData/rt_test/new.fits'
-                self.rtd = fits.open(path_to_rtd)[0].data.astype(float)
-                if np.any(self.rtd >= 2**14):
-                    self.label_saturation.setText("Saturation")
-                    self.label_saturation.setStyleSheet("background-color: red;\
-                                                        border: 1px solid black;\
-                                                        color: white;")                                                  
-
-                if self.checkBox_dark.isChecked():
-                    self.rtd -= self.dk
-                # self.rtd = np.random.normal(0, 100, self.rtd.shape)
-                self.img_data += self.rtd
-
-            self.img_data /= max(1., int(self.plots_average.text()))
             self.imv_data.setImage(self.img_data.T)
             vmin, vmax = self.change_display_dynamic(self.img_data, self.display_vmin.text(), self.display_vmax.text())
             self.imv_data.setLevels([vmin, vmax])
@@ -890,9 +928,126 @@ class MainWindow(QtWidgets.QMainWindow):
     # TT opti
     # =============================================================================
     def clickTtOpti(self):
-        self.opti_waiting = float(self.scan_wait.text())
-        self.nloops = int(self.num_loops.text())
+        if self.tt_opt.text() == 'Do TT optimisation':
+            self._do_tt_opt()
+        else:
+            self._abort_tt()
+
+    def _do_tt_opt(self):
+        self.abortTT = False
+        self.tt_opt.setText('Abort TT')
+        self.tt_opt.setStyleSheet('color: red')
+        self.pushButton_startstop.setEnabled(False)
+        if self.timer.isActive():
+            reactivate_timer = True
+            self.pushButton_startstop.setText('Start video')
+            self.timer.stop()
+        else:
+            reactivate_timer = False
+
         self.addHistoryItem("TT Opti")
+        self.mems_value_old = self.mems_values.copy()
+        self.clickMemsToZero()
+
+        try:
+            scan_wait = float(self.scan_wait.text()) # Defined in *.ui file
+        except ValueError:
+            self.addHistoryItem('Scan wait invalid format', False)
+            scan_wait = SCAN_WAIT
+            self.scan_wait.setText(str(scan_wait))
+
+        try:
+            num_loops = int(self.num_loops.text())
+        except ValueError:
+            num_loops = 1
+            self.addHistoryItem('Num loops invalid format', False)
+
+        step = 0.5
+        ttx = np.arange(TTX_MIN, TTX_MAX + step, step)
+        tty = np.arange(TTY_MIN, TTY_MAX + step, step)
+        seg_tt = [[29], [35], [26], [24]][:2]
+        wg_table = {29: 16, 35: 14, 26: 3, 24: 1}
+        colours = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 255)]
+
+        old_segment_id = self.segment_selection.text()
+
+        for seg in seg_tt:
+            if self.abortTT:
+                break  
+            self.tt_map = []
+            self.segment_id = seg[0]
+            self.segment_selection.setText(str(self.segment_id)) # Defined in ui file
+            for k in range(num_loops):
+                self.addHistoryItem('Scanning TT seg %s %s/%s'%(seg[0], k+1, num_loops))
+                cum_map = []
+                for x in ttx:
+                    y_fill = []
+                    for y in tty:
+                        if self.abortTT:
+                            break
+                        self.mems_values[self.segment_id-1] = [0, x, y]
+                        self.move_mems_and_updateTable('all')
+                        QtTest.QTest.qWait(int(scan_wait * 1000))
+                        self.refresh()
+                        flux = self.rois[wg_table[self.segment_id]-1].getArrayRegion(self.img_data, self.imv_data, axes=(1, 0))
+                        flux = flux.mean()
+                        y_fill.append(flux)
+                    cum_map.append(y_fill)
+                self.tt_map.append(cum_map)
+
+            self.mems_values[self.segment_id-1] = self.mems_value_old[self.segment_id-1]
+            self.move_mems_and_updateTable('all')
+
+            if not self.abortTT:
+                self.addHistoryItem('Scanning TT seg %s done'%(seg[0]))
+
+                self.tt_map = np.array(self.tt_map)
+                self.tt_map = np.mean(self.tt_map, 0)
+                ttx_interp = np.arange(TTX_MIN, TTX_MAX + step/10, step/10)
+                tty_interp = np.arange(TTY_MIN, TTY_MAX + step/10, step/10)
+                interp_function = interp2d(ttx, tty, self.tt_map.T, kind='cubic')
+                self.tt_map_interp = interp_function(ttx_interp, tty_interp)
+                idx_max = np.unravel_index(np.argmax(self.tt_map_interp), self.tt_map_interp.shape)
+                coord_max = (ttx_interp[idx_max[1]], tty_interp[idx_max[0]])
+                print('TT max seg %s:'%seg[0], coord_max)
+                self.tt_max.append(coord_max)
+                rect = QtCore.QRectF(ttx_interp[0], tty_interp[0],
+                                    (ttx_interp[-1]-ttx_interp[0]), (tty_interp[-1]-tty_interp[0]))
+                self.imv_tt.setImage(self.tt_map_interp.T)
+                self.imv_tt.setRect(rect)
+                try:
+                    self.tt_map_display.removeItem(self.tt_crosshair)
+                except AttributeError:
+                    pass
+                self.tt_crosshair = pg.CrosshairROI(coord_max, [0., 0.5], pen=colours[seg_tt.index(seg)], movable=False, resizable=False, rotatable=False)
+                self.tt_map_display.addItem(self.tt_crosshair)
+                self.mems_values[self.segment_id-1] = [0, coord_max[0], coord_max[1]]
+                self.move_mems_and_updateTable('all')
+                np.savez('tt_map_seg%s_%s'%(seg[0], datetime.datetime.now().strftime('%Y%m%dT%H%M%S%f')),
+                            x=ttx_interp, y=tty_interp, z=self.tt_map_interp.T)
+                QtTest.QTest.qWait(500)
+            else:
+                self.addHistoryItem('Scanning TT aborted', False)
+                print('Scanning TT aborted')
+                self.mems_values[:] = self.mems_value_old
+                self.segment_id = 0
+                self.move_mems_and_updateTable('all') 
+
+        if reactivate_timer:
+            self.timer.start()
+            self.pushButton_startstop.setText('Stop video')
+        self.pushButton_startstop.setEnabled(True)
+        self.segment_selection.setText(old_segment_id)
+
+        if not self.abortTT:
+            self.tt_opt.setText('Do TT optimisation')
+            self.tt_opt.setStyleSheet('color: black')            
+
+    def _abort_tt(self):
+        self.abortTT = True
+        self.tt_opt.setText('Do TT optimisation')
+        self.tt_opt.setStyleSheet('color: black')
+
 
     # =============================================================================
     # Camera Control
