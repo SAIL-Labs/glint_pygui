@@ -80,9 +80,9 @@ class WarmUpMems(object):
      
 
 disableHw = True
-# resp = input("\nDisable hardware? [Y/n]\n")
-# if resp in ['n', 'N']:
-#     disableHw = False
+resp = input("\nDisable hardware? [Y/n]\n")
+if resp in ['n', 'N']:
+    disableHw = False
 warmup_mems = WarmUpMems(disableHw)
 
 import numpy as np
@@ -90,9 +90,12 @@ from matplotlib.backends.backend_qt5agg import (
     NavigationToolbar2QT as NavigationToolbar)
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp2d
+from scipy.optimize import curve_fit
 import pyqtgraph as pg
 from astropy.io import fits
 import datetime
+
+plt.ion()
 
 MEMS_MAX = 2.5
 MEMS_MIN = -2.5
@@ -100,6 +103,13 @@ TARGET_FPS = 10.
 SCAN_WAIT = 0.1
 TTX_MIN, TTX_MAX = -2.5, 2.5
 TTY_MIN, TTY_MAX = -2.5, 2.5
+NUM_LOOPS = 1
+SEG_TO_MOVE = 1
+NULL_TO_SCAN = 1
+NULL_RANGE_MIN = -2.5
+NULL_RANGE_MAX = 2.5
+NULL_RANGE_STEP = 0.5
+WAVELENGTH = 1.6
 
 class TableModel(QtCore.QAbstractTableModel):
     """
@@ -307,12 +317,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.segment_selection.setText(str(self.segment_id)) # is created in *.ui file
         self.mems_step.setText(str(self.step_seg)) # is created in *.ui file
         self.scan_wait.setText(str(SCAN_WAIT)) # is created in *.ui file
-        self.num_loops.setText('1') # is created in *.ui file
-        self.seg_to_move.setText('1') # is created in *.ui file
-        self.null_to_scan.setText('1') # is created in *.ui file
-        self.null_scan_range_min.setText("-2.5") # is created in *.ui file
-        self.null_scan_range_step.setText("0.5") # is created in *.ui file
-        self.null_scan_range_max.setText("2.5") # is created in *.ui file
+        self.num_loops.setText(str(NUM_LOOPS)) # is created in *.ui file
+        self.seg_to_move.setText(str(SEG_TO_MOVE)) # is created in *.ui file
+        self.null_to_scan.setText(str(NULL_TO_SCAN)) # is created in *.ui file
+        self.null_scan_range_min.setText(str(NULL_RANGE_MIN)) # is created in *.ui file
+        self.null_scan_range_step.setText(str(NULL_RANGE_STEP)) # is created in *.ui file
+        self.null_scan_range_max.setText(str(NULL_RANGE_MAX)) # is created in *.ui file
 
         # Init MEMS table
         self.mems_values = np.zeros((self.nb_segments, 3))
@@ -421,7 +431,7 @@ class MainWindow(QtWidgets.QMainWindow):
     #   Global control
     # =============================================================================
     def debug(self):
-        print(self.tt_max)
+        print(self.full_frames.shape)
         self.count += 1
         pass
 
@@ -435,6 +445,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.addHistoryItem(display_error('M4')[0], False)
             msg = DisplayPopUp('Error', display_error('M4')[1])
         self.timer.stop()
+        plt.close('all')
         self.close()
 
     def addHistoryItem(self, text, colortext=True):
@@ -445,7 +456,7 @@ class MainWindow(QtWidgets.QMainWindow):
         :param colortext: color the text in red if `False`, defaults to True
         :type colortext: bool, optional
         """
-        if self.qlist_history.count() > 23:
+        if self.qlist_history.count() > 200:
             self.qlist_history.takeItem(0)
         item = QtWidgets.QListWidgetItem(text)
         if not colortext:
@@ -900,31 +911,6 @@ class MainWindow(QtWidgets.QMainWindow):
             labels[k].setText("%.3f"%fluxes[k])
 
     # =============================================================================
-    # Nulling optimisation
-    # =============================================================================
-    def clickNullScan(self):
-        self.opti_waiting = float(self.scan_wait.text())
-        self.nloops = int(self.num_loops.text())
-        self.segment_to_move = int(self.seg_to_move.text())
-        self.scan_null = int(self.null_to_scan.text())
-        self.scan_read = self.null_scan_range.text().split(':')
-        self.scan_begin = float(self.scan_read[0])
-        self.scan_end = float(self.scan_read[1])
-        self.scan_step = float(self.scan_read[2])
-
-        if self.segment_to_move == 2:
-            self.segment_id = 35
-        elif self.segment_to_move == 3:
-            self.segment_id = 26
-        elif self.segment_to_move == 4:
-            self.segment_id = 24
-        else:  # By default, segment 29 is scanned
-            self.segment_id = 29
-
-        self.addHistoryItem("Scan N%s (Seg %s)" %
-                            (self.scan_null, self.segment_id))
-
-    # =============================================================================
     # TT opti
     # =============================================================================
     def clickTtOpti(self):
@@ -945,22 +931,12 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             reactivate_timer = False
 
-        self.addHistoryItem("TT Opti")
         self.mems_value_old = self.mems_values.copy()
         self.clickMemsToZero()
 
-        try:
-            scan_wait = float(self.scan_wait.text()) # Defined in *.ui file
-        except ValueError:
-            self.addHistoryItem('Scan wait invalid format', False)
-            scan_wait = SCAN_WAIT
-            self.scan_wait.setText(str(scan_wait))
+        scan_wait = self._str2float(self.scan_wait.text(), SCAN_WAIT)
 
-        try:
-            num_loops = int(self.num_loops.text())
-        except ValueError:
-            num_loops = 1
-            self.addHistoryItem('Num loops invalid format', False)
+        num_loops = int(self._str2float(self.num_loops.text(), NUM_LOOPS))
 
         step = 0.5
         ttx = np.arange(TTX_MIN, TTX_MAX + step, step)
@@ -1048,6 +1024,203 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tt_opt.setText('Do TT optimisation')
         self.tt_opt.setStyleSheet('color: black')
 
+    # =============================================================================
+    # Nulling optimisation
+    # =============================================================================
+    def clickNullScan(self):
+        if self.null_opti.text() == 'Do Nuller optimisation':
+            self._do_null_scan()
+        else:
+            self._abort_nullscan()
+
+    def _str2float(self, text, default_val):
+        try:
+            return float(text)
+        except ValueError:
+            self.addHistoryItem('Wrong format number', False)
+            return default_val
+
+    def _do_null_scan(self):
+        self.abortNull = False
+        self.null_opti.setText('Abort Null scan')
+        self.null_opti.setStyleSheet('color: red')
+        self.pushButton_startstop.setEnabled(False)
+        if self.timer.isActive():
+            reactivate_timer = True
+            self.pushButton_startstop.setText('Start video')
+            self.timer.stop()
+        else:
+            reactivate_timer = False
+
+        scan_wait = self._str2float(self.scan_wait.text(), SCAN_WAIT)
+        num_loops = int(self._str2float(self.num_loops.text(), NUM_LOOPS))
+        self.mems_value_old = self.mems_values.copy()
+        old_segment_id = self.segment_selection.text()    
+
+        self.segment_to_move = int(self._str2float(self.seg_to_move.text(), SEG_TO_MOVE))
+        self.scanning_null = int(self._str2float(self.null_to_scan.text(), NULL_TO_SCAN))
+        self.scan_begin = self._str2float(self.null_scan_range_min.text(), NULL_RANGE_MIN)
+        self.scan_end = self._str2float(self.null_scan_range_max.text(), NULL_RANGE_MAX)
+        self.scan_step = self._str2float(self.null_scan_range_step.text(), NULL_RANGE_STEP)
+
+        scan_range = np.arange(self.scan_begin, self.scan_end + self.scan_step, self.scan_step)
+
+        if self.segment_to_move == 2:
+            self.segment_id = 35
+        elif self.segment_to_move == 3:
+            self.segment_id = 26
+        elif self.segment_to_move == 4:
+            self.segment_id = 24
+        else:  # By default, segment 29 is scanned
+            self.segment_id = 29
+
+        self.segment_selection.setText(str(self.segment_id)) # Defined in ui file
+
+        wg_table = {1: 12, 2: 4, 3: 2, 4: 7, 5: 6, 6: 9}
+
+        tt_pos = self.mems_values[self.segment_id-1, 1:].copy()
+
+        self.scanned_valued = []
+        self.real_piston = []
+        self.full_frames = []
+
+        for k in range(num_loops):
+            if self.abortNull:
+                break            
+            temp = []
+            temp_piston = []
+            temp_frame = []
+            self.addHistoryItem("Scan N%s (Seg %s) %s/%s" %
+                                (self.scanning_null, self.segment_id, k+1, num_loops))
+            for piston in scan_range:
+                if self.abortNull:
+                    break
+                self.mems_values[self.segment_id-1] = [piston, *tt_pos]
+                self.move_mems_and_updateTable('all')
+                QtTest.QTest.qWait(int(scan_wait * 1000))
+                self.refresh()
+                flux = self.rois[wg_table[self.scanning_null]-1].getArrayRegion(self.img_data, self.imv_data, axes=(1, 0))
+                flux = flux.mean()         
+                temp.append(flux)
+                temp_piston.append(self.mems_values[self.segment_id-1, 0])
+                temp_frame.append(self.img_data)
+            self.scanned_valued.append(temp)
+            self.real_piston.append(temp_piston)
+            self.full_frames.append(temp_frame)
+            
+            if not self.abortNull:
+                plt.figure(1)
+                plt.clf()
+                plt.plot(temp_piston, temp)
+                plt.xlabel('Positions of segment %s'%self.segment_id)
+                plt.title('Scan of Null %s'%self.scanning_null)
+
+        if not self.abortNull:
+            self.scanned_valued = np.array(self.scanned_valued)
+            self.scanned_valued = np.mean(self.scanned_valued, 0)
+            self.real_piston = np.array(self.real_piston)
+            self.real_piston = np.mean(self.real_piston, 0)
+            self.full_frames = np.array(self.full_frames)
+            self.full_frames = np.transpose(self.full_frames, axes=(2, 3, 1, 0))
+            self.addHistoryItem("Scan N%s (Seg %s) done" %
+                                (self.scanning_null, self.segment_id))
+            null_model = lambda x, amp, freq, phase, offset: amp * np.sin(freq*x + phase) + offset
+
+            init_guess = [(self.scanned_valued.max()-self.scanned_valued.min())/2, 
+                            2*np.pi/WAVELENGTH, 0, self.scanned_valued.mean()]
+            popt = curve_fit(null_model, self.real_piston, self.scanned_valued, p0=init_guess)[0]
+            x = np.arange(self.scan_begin, self.scan_end, self.scan_step/100)
+            fit = null_model(x, *popt)
+            best_null_pos = x[np.argmin(fit)]
+
+            print('')
+            print('Fit results:', popt)
+            print('Best null at', best_null_pos)
+            print('')
+            self.addHistoryItem('Best null for Seg %s at %.3f um'%(self.segment_id, best_null_pos))
+            self.mems_values[self.segment_id-1] = [best_null_pos, *tt_pos]
+            self.move_mems_and_updateTable('all')
+            QtTest.QTest.qWait(int(scan_wait * 1000))
+            self.refresh()        
+
+            plt.figure(1)
+            plt.clf()
+            plt.plot(self.real_piston, self.scanned_valued, 'o')
+            plt.plot(x, fit)
+            plt.plot(best_null_pos, null_model(best_null_pos, *popt), '+', c='r',
+                    markersize=15, markeredgewidth=3, label=r'%.4f $\mu$m'%(best_null_pos))
+            plt.xlabel('Real positions of segment %s'%self.segment_id)
+            plt.title('Scan of Null %s'%self.scanning_null)
+            plt.legend(loc='best')
+
+            self._define_save_name()
+            ref_segment_pos = self.mems_values[self.ref_segment-1, 0]
+            if ref_segment_pos > 0:
+                ref_segment_pos = '%.2f'%ref_segment_pos
+            else:
+                ref_segment_pos = 'm%.2f'%(abs(ref_segment_pos))
+
+            np.savez('null%s_%sat%s_%s'%(self.scanning_null, self.ref_segment, ref_segment_pos, datetime.datetime.now().strftime('%Y%m%dT%H%M%S%f')),
+                    x=self.real_piston, y=self.scanned_valued, seg=self.segment_id, nullId=self.scanning_null)
+            np.savez('null%s_%sat%s_fullIms_%s'%(self.scanning_null, self.ref_segment, ref_segment_pos, datetime.datetime.now().strftime('%Y%m%dT%H%M%S%f')),
+                    x=self.real_piston, y=self.scanned_valued, seg=self.segment_id, nullId=self.scanning_null,
+                    darkframe=self.dk, fullScanAllImages=self.full_frames)
+        else:
+            self.addHistoryItem('Scanning Null aborted', False)
+            print('Scanning Null aborted')
+            self.mems_values[:] = self.mems_value_old
+            self.segment_id = 0
+            self.move_mems_and_updateTable('all') 
+
+        if reactivate_timer:
+            self.timer.start()
+            self.pushButton_startstop.setText('Stop video')
+        self.pushButton_startstop.setEnabled(True)
+        self.segment_selection.setText(old_segment_id)
+
+        if not self.abortNull:
+            self.null_opti.setText('Do Nuller optimisation')
+            self.null_opti.setStyleSheet('color: black')          
+
+    def _abort_nullscan(self):
+        self.abortNull = True
+        self.null_opti.setText('Do Nuller optimisation')
+        self.null_opti.setStyleSheet('color: black')
+
+    def _define_save_name(self):
+        if self.scanning_null == 1:
+            if self.segment_to_move == 1:
+                self.ref_segment = 35
+            else:
+                self.ref_segment = 29
+        elif self.scanning_null == 2:
+            if self.segment_to_move == 2:
+                self.ref_segment = 26
+            else:
+                self.ref_segment = 35
+        elif self.scanning_null == 3:
+            if self.segment_to_move == 1:
+                self.ref_segment = 24
+            else:
+                self.ref_segment = 29
+        elif self.scanning_null == 4:
+            if self.segment_to_move == 3:
+                self.ref_segment = 24
+            else:
+                self.ref_segment = 26
+        elif self.scanning_null == 5:
+            if self.segment_to_move == 3:
+                self.ref_segment = 29
+            else:
+                self.ref_segment = 26
+        elif self.scanning_null == 6:
+            if self.segment_to_move == 4:
+                self.ref_segment = 35
+            else:
+                self.ref_segment = 24
+        else:
+            self.addHistoryItem('No null selected', False)
+            self.ref_segment = 1
 
     # =============================================================================
     # Camera Control
