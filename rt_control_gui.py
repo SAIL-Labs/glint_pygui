@@ -28,6 +28,7 @@ WAVELENGTH = 1.6
 NUM_DARK_FRAMES = 1
 STEP_SEG = 0
 SEGMENT_ID = 0
+PATH_TO_FRAMES = '/mnt/96980F95980F72D3/glintData/rt_test/new.fits'
 
 def display_error(err_code):
     """Gather all the hand-made error code which may rise because of MEMS or camera.
@@ -826,7 +827,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkBox_dark.setEnabled(False)
         self.old_dk = self.dk.copy()
 
-        path_to_dk = '/mnt/96980F95980F72D3/glintData/rt_test/new.fits'
+        path_to_dk = PATH_TO_FRAMES
         self.dk = []
         nb_dark = int(self.str2float(self.num_dark_frames.text(), NUM_DARK_FRAMES))
         exp_time = 1/self.str2float(self.refresh_rate.text(), TARGET_FPS)
@@ -861,7 +862,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def refresh(self):
         self.img_data = np.zeros_like(self.rtd)
         for k in range(int(self.plots_average.text())):
-            path_to_rtd = '/mnt/96980F95980F72D3/glintData/rt_test/new.fits'
+            path_to_rtd = PATH_TO_FRAMES
             self.rtd = fits.open(path_to_rtd)[0].data.astype(float)
             if np.any(self.rtd >= 2**14):
                 self.label_saturation.setText("Saturation")
@@ -871,7 +872,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             if self.checkBox_dark.isChecked():
                 self.rtd -= self.dk
-            self.rtd += np.random.normal(0, 5, self.rtd.shape)
+            # self.rtd += np.random.normal(0, 5, self.rtd.shape)
             self.img_data += self.rtd
 
         self.img_data /= max(1., int(self.plots_average.text()))
