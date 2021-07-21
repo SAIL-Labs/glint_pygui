@@ -7,6 +7,28 @@ from PyQt5 import uic
 from PyQt5 import QtWidgets, QtCore, QtGui, QtTest
 import IrisAO_PythonAPI as IrisAO_API
 
+MIRROR_NUM = 'FSC37-01-11-1614' # Configuration file name
+DRIVER_NUM = '05160023' # Hardware driver file name
+MEMS_PATH = 'mems/' # Path where the hardware driver and the configuration files are located
+MEMS_NB_SEGMENT = 37 # 37 for PTT111, 169 for PTT489
+
+MEMS_MAX = 2.5
+MEMS_MIN = -2.5
+TARGET_FPS = 10.
+SCAN_WAIT = 0.1
+TTX_MIN, TTX_MAX = -2.5, 2.5
+TTY_MIN, TTY_MAX = -2.5, 2.5
+NUM_LOOPS = 1
+SEG_TO_MOVE = 1
+NULL_TO_SCAN = 1
+NULL_RANGE_MIN = -2.5
+NULL_RANGE_MAX = 2.5
+NULL_RANGE_STEP = 0.5
+WAVELENGTH = 1.6
+NUM_DARK_FRAMES = 1
+STEP_SEG = 0
+SEGMENT_ID = 0
+
 def display_error(err_code):
     """Gather all the hand-made error code which may rise because of MEMS or camera.
 
@@ -59,10 +81,10 @@ class WarmUpMems(object):
                             from the calibration file.
         :type disableHW: bool
         """
-        path = 'mems/'
-        mirror_num = 'FSC37-01-11-1614'
-        driver_num = '05160023'
-        self.nb_segments = 37  # 37 for PTT111, 169 for PTT489
+        path = MEMS_PATH
+        mirror_num = MIRROR_NUM
+        driver_num = DRIVER_NUM
+        self.nb_segments = MEMS_NB_SEGMENT
         # Stay True if there is no issue with the MEMS connection and library
         self.mems_fuse = True
 
@@ -96,21 +118,6 @@ from astropy.io import fits
 import datetime
 
 plt.ion()
-
-MEMS_MAX = 2.5
-MEMS_MIN = -2.5
-TARGET_FPS = 10.
-SCAN_WAIT = 0.1
-TTX_MIN, TTX_MAX = -2.5, 2.5
-TTY_MIN, TTY_MAX = -2.5, 2.5
-NUM_LOOPS = 1
-SEG_TO_MOVE = 1
-NULL_TO_SCAN = 1
-NULL_RANGE_MIN = -2.5
-NULL_RANGE_MAX = 2.5
-NULL_RANGE_STEP = 0.5
-WAVELENGTH = 1.6
-NUM_DARK_FRAMES = 1
 
 class TableModel(QtCore.QAbstractTableModel):
     """
@@ -311,8 +318,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.mems_off = np.zeros((self.nb_segments, 3))
         self.mems_flat = np.zeros((self.nb_segments, 3))
 
-        self.step_seg = 0
-        self.segment_id = 0
+        self.step_seg = STEP_SEG
+        self.segment_id = SEGMENT_ID
 
         # Init fields
         self.segment_selection.setText(str(self.segment_id)) # is created in *.ui file
@@ -678,28 +685,22 @@ class MainWindow(QtWidgets.QMainWindow):
     def clickOffRestore(self):
         """Restore the positions of the mirror from a *npz* file in the *Off* preset.
         """
-        self.mems_values[:] = self.mems_off[:]
-        self.updateTable(self.segment_id, 0)
-        self.updateTable(self.segment_id, 1)
-        self.updateTable(self.segment_id, 2)
+        self.mems_values[:] = self.mems_off[:].copy()
+        self.move_mems_and_updateTable('all')
         self.addHistoryItem("Profile 'Off' restored")
 
     def clickOnRestore(self):
         """Restore the positions of the mirror from a *npz* file in the *On* preset.
         """        
-        self.mems_values[:] = self.mems_on[:]
-        self.updateTable(self.segment_id, 0)
-        self.updateTable(self.segment_id, 1)
-        self.updateTable(self.segment_id, 2)
+        self.mems_values[:] = self.mems_on[:].copy()
+        self.move_mems_and_updateTable('all')
         self.addHistoryItem("Profile 'On' restored")
 
     def clickFlatRestore(self):
         """Restore the positions of the mirror from a *npz* file in the *Flat* preset.
         """        
-        self.mems_values[:] = self.mems_flat[:]
-        self.updateTable(self.segment_id, 0)
-        self.updateTable(self.segment_id, 1)
-        self.updateTable(self.segment_id, 2)
+        self.mems_values[:] = self.mems_flat[:].copy()
+        self.move_mems_and_updateTable('all')
         self.addHistoryItem("Profile 'Flat' restored")
 
     def clickSave(self):
@@ -979,7 +980,7 @@ class MainWindow(QtWidgets.QMainWindow):
         step = 0.5
         ttx = np.arange(TTX_MIN, TTX_MAX + step, step)
         tty = np.arange(TTY_MIN, TTY_MAX + step, step)
-        seg_tt = [[29], [35], [26], [24]][:2]
+        seg_tt = [[29], [35], [26], [24]]
         wg_table = {29: 16, 35: 14, 26: 3, 24: 1}
         colours = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 255)]
 
@@ -1043,7 +1044,7 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 self.addHistoryItem('Scanning TT aborted', False)
                 print('Scanning TT aborted')
-                self.mems_values[:] = self.mems_value_old
+                # self.mems_values[self.segment_id-1] = self.mems_value_old[self.segment_id-1].copy()
                 self.segment_id = 0
                 self.move_mems_and_updateTable('all') 
 
@@ -1052,6 +1053,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.pushButton_startstop.setText('Stop video')
         self.pushButton_startstop.setEnabled(True)
         self.segment_selection.setText(old_segment_id)
+        self.segment_id = self.str2float(old_segment_id, SEGMENT_ID)
 
         if not self.abortTT:
             self.tt_opt.setText('Do TT optimisation')

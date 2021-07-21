@@ -1900,7 +1900,7 @@
      </rect>
     </property>
     <property name="title">
-     <string>To-do list</string>
+     <string>Step-by-step help</string>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
