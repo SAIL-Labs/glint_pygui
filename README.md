@@ -15,6 +15,11 @@ Main features from Matlab GUI will be:
 Bonus:
 - RT view of the spectrum in the selected output to chase wiggles
 
+## Update: 2021-07-21
+The GUI is ready to be tested in real condition.
+Python script started: execute ``rt_control_gui`` in your favorite way.
+**NOTE: change in the code the MEMS file with regard to the plugged one**
+
 ## Update: 2021-01-22
 Interface is created.
 Python script started: execute ``rt_control_gui`` in your favorite way.
