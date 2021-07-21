@@ -110,6 +110,7 @@ NULL_RANGE_MIN = -2.5
 NULL_RANGE_MAX = 2.5
 NULL_RANGE_STEP = 0.5
 WAVELENGTH = 1.6
+NUM_DARK_FRAMES = 1
 
 class TableModel(QtCore.QAbstractTableModel):
     """
@@ -323,6 +324,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.null_scan_range_min.setText(str(NULL_RANGE_MIN)) # is created in *.ui file
         self.null_scan_range_step.setText(str(NULL_RANGE_STEP)) # is created in *.ui file
         self.null_scan_range_max.setText(str(NULL_RANGE_MAX)) # is created in *.ui file
+        self.num_dark_frames.setText(str(NUM_DARK_FRAMES)) # is created in *.ui file
 
         # Init MEMS table
         self.mems_values = np.zeros((self.nb_segments, 3))
@@ -395,7 +397,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Set the buttons
         self.pushButton_exit.clicked.connect(self.exitapp)
-        self.pushButton_dark.clicked.connect(self.click_grab_dark)
+        self.pushButton_dark.clicked.connect(self.click_dark_button)
         self.piston_up.clicked.connect(self.clickPistonUp)
         self.piston_down.clicked.connect(self.clickPistonDown)
         self.tip_up.clicked.connect(self.clickTipUp)
@@ -431,7 +433,7 @@ class MainWindow(QtWidgets.QMainWindow):
     #   Global control
     # =============================================================================
     def debug(self):
-        print(self.full_frames.shape)
+        print('Do development things here')
         self.count += 1
         pass
 
@@ -462,6 +464,14 @@ class MainWindow(QtWidgets.QMainWindow):
         if not colortext:
             item.setForeground(QtGui.QColor("red"))
         self.qlist_history.addItem(item)
+        self.qlist_history.scrollToBottom()
+
+    def str2float(self, text, default_val):
+        try:
+            return float(text)
+        except ValueError:
+            self.addHistoryItem('Wrong format number', False)
+            return default_val
 
     # =============================================================================
     # MEMS Table
@@ -745,18 +755,10 @@ class MainWindow(QtWidgets.QMainWindow):
             self.timer.stop()
         else:
             self.pushButton_startstop.setText('Stop video')
-            try:
-                self.target_fps = float(self.refresh_rate.text())
-                if self.target_fps > 0:
-                    self.addHistoryItem('Refresh rate = %s Hz'%self.target_fps)
-                else:
-                    self.target_fps = 1
-                    self.addHistoryItem('Refresh forces to %s Hz'%self.target_fps, False)
-                    self.refresh_rate.setText(str(self.target_fps))
-            except ValueError:
-                self.target_fps = TARGET_FPS
-                self.addHistoryItem('Refresh forces to %s Hz'%self.target_fps, False)
-                self.refresh_rate.setText(str(self.target_fps))
+            self.target_fps = self.str2float(self.refresh_rate.text(), TARGET_FPS)
+            self.target_fps = abs(self.target_fps)
+            self.addHistoryItem('Refresh rate = %s Hz'%self.target_fps)
+            self.refresh_rate.setText(str(self.target_fps))
 
             self.timer.setInterval(int(np.around(1000. / self.target_fps)))
             self.timer.timeout.connect(self.refresh)
@@ -810,14 +812,50 @@ class MainWindow(QtWidgets.QMainWindow):
 
         return rois
 
+    def click_dark_button(self):
+        if self.pushButton_dark.text() == 'Take dark':
+            self._grab_dark()
+        else:
+            self._abort_grab_dark()
 
-    def click_grab_dark(self):
-        path_to_dk = '/mnt/96980F95980F72D3/glintData/rt_test/dark.fits'
-        try:
-            self.dk = fits.open(path_to_dk)[0].data.astype(float)
-            self.addHistoryItem('Dark loaded')
-        except FileNotFoundError:
-            self.addHistoryItem('Dark not found', False)
+    def _grab_dark(self):
+        self.abortDark = False
+        self.pushButton_dark.setText('Abort Dark')
+        self.pushButton_dark.setStyleSheet('color: red')
+        self.checkBox_dark.setEnabled(False)
+        self.old_dk = self.dk.copy()
+
+        path_to_dk = '/mnt/96980F95980F72D3/glintData/rt_test/new.fits'
+        self.dk = []
+        nb_dark = int(self.str2float(self.num_dark_frames.text(), NUM_DARK_FRAMES))
+        exp_time = 1/self.str2float(self.refresh_rate.text(), TARGET_FPS)
+
+        for k in range(nb_dark):
+            if self.abortDark:
+                break
+            dark_frame = fits.open(path_to_dk)[0].data.astype(float)
+            self.addHistoryItem('Acquiring dark %s/%s'%(k+1, nb_dark))
+            self.dk.append(dark_frame)
+            QtTest.QTest.qWait(int(exp_time * 1000))
+
+        if self.abortDark:
+            self.addHistoryItem('Acquiring dark aborted')
+            self.dk = self.old_dk.copy()
+        else:
+            self.addHistoryItem('Acquiring dark done')
+            self.dk = np.array(self.dk)
+            self.dk = np.mean(self.dk, 0)
+
+        self.checkBox_dark.setEnabled(True)
+
+        if not self.abortDark:
+            self.pushButton_dark.setText('Take dark')
+            self.pushButton_dark.setStyleSheet('color: black')
+    
+    def _abort_grab_dark(self):
+        self.abortDark = True
+        self.pushButton_dark.setText('Take dark')
+        self.pushButton_dark.setStyleSheet('color: black')
 
     def refresh(self):
         self.img_data = np.zeros_like(self.rtd)
@@ -934,9 +972,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.mems_value_old = self.mems_values.copy()
         self.clickMemsToZero()
 
-        scan_wait = self._str2float(self.scan_wait.text(), SCAN_WAIT)
+        scan_wait = self.str2float(self.scan_wait.text(), SCAN_WAIT)
 
-        num_loops = int(self._str2float(self.num_loops.text(), NUM_LOOPS))
+        num_loops = int(self.str2float(self.num_loops.text(), NUM_LOOPS))
 
         step = 0.5
         ttx = np.arange(TTX_MIN, TTX_MAX + step, step)
@@ -1033,13 +1071,6 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self._abort_nullscan()
 
-    def _str2float(self, text, default_val):
-        try:
-            return float(text)
-        except ValueError:
-            self.addHistoryItem('Wrong format number', False)
-            return default_val
-
     def _do_null_scan(self):
         self.abortNull = False
         self.null_opti.setText('Abort Null scan')
@@ -1052,16 +1083,16 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             reactivate_timer = False
 
-        scan_wait = self._str2float(self.scan_wait.text(), SCAN_WAIT)
-        num_loops = int(self._str2float(self.num_loops.text(), NUM_LOOPS))
+        scan_wait = self.str2float(self.scan_wait.text(), SCAN_WAIT)
+        num_loops = int(self.str2float(self.num_loops.text(), NUM_LOOPS))
         self.mems_value_old = self.mems_values.copy()
         old_segment_id = self.segment_selection.text()    
 
-        self.segment_to_move = int(self._str2float(self.seg_to_move.text(), SEG_TO_MOVE))
-        self.scanning_null = int(self._str2float(self.null_to_scan.text(), NULL_TO_SCAN))
-        self.scan_begin = self._str2float(self.null_scan_range_min.text(), NULL_RANGE_MIN)
-        self.scan_end = self._str2float(self.null_scan_range_max.text(), NULL_RANGE_MAX)
-        self.scan_step = self._str2float(self.null_scan_range_step.text(), NULL_RANGE_STEP)
+        self.segment_to_move = int(self.str2float(self.seg_to_move.text(), SEG_TO_MOVE))
+        self.scanning_null = int(self.str2float(self.null_to_scan.text(), NULL_TO_SCAN))
+        self.scan_begin = self.str2float(self.null_scan_range_min.text(), NULL_RANGE_MIN)
+        self.scan_end = self.str2float(self.null_scan_range_max.text(), NULL_RANGE_MAX)
+        self.scan_step = self.str2float(self.null_scan_range_step.text(), NULL_RANGE_STEP)
 
         scan_range = np.arange(self.scan_begin, self.scan_end + self.scan_step, self.scan_step)
 
