@@ -46,11 +46,11 @@ This explains why the `import` are scattered in the code.
 ## Installation
 To build on local machine
 
-- `git clone https://github.com/SydneyAstrophotonicInstrumentationLab/glint_pygui`
+- `git clone https://github.com/SydneyAstrophotonicInstrumentationLab/glint_pygui` or download the realease
 
 - Optional: Create a new environment
 
-- `python -m pip install glint_pygui`
+- `python -m pip install glint_pygui` or `conda install /packages-path/glint_pygui-1.0.0.zip/targ.gz`
 
 To install the MEMS driver
 
