@@ -15,6 +15,10 @@ Main features from Matlab GUI will be:
 Bonus:
 - RT view of the spectrum in the selected output to chase wiggles
 
+## Update: 2021-07-26
+The GUI is packaged.
+The installing process has not been tested.
+
 ## Update: 2021-07-21
 The GUI is ready to be tested in real condition.
 Python script started: execute ``rt_control_gui`` in your favorite way.
@@ -23,3 +27,17 @@ Python script started: execute ``rt_control_gui`` in your favorite way.
 ## Update: 2021-01-22
 Interface is created.
 Python script started: execute ``rt_control_gui`` in your favorite way.
+
+## Installation
+To build on local machine
+
+	git clone https://github.com/SydneyAstrophotonicInstrumentationLab/glint_pygui
+	Optional: Create a new environment
+	python -m pip install glint_pygui
+
+To install the MEMS driver
+
+ 	Unzip `mems_setup_kit`
+	Follow the instructions in `readme.txt`
+
+Edit the variables in `rt_control_gui.py` between the beacons `Must be customized` and `End of customization`.
