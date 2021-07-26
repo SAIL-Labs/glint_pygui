@@ -1,16 +1,22 @@
-# %%
 import os
 import sys
-sys.path.append(os.path.abspath('mems/'))
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from PyQt5 import QtWidgets, QtCore, QtGui, QtTest
-import IrisAO_PythonAPI as IrisAO_API
 
+"""
+Must be customized
+"""
 MIRROR_NUM = 'FSC37-01-11-1614' # Configuration file name
 DRIVER_NUM = '05160023' # Hardware driver file name
 MEMS_PATH = 'mems/' # Path where the hardware driver and the configuration files are located
 MEMS_NB_SEGMENT = 37 # 37 for PTT111, 169 for PTT489
+PATH_TO_FRAMES = '/mnt/96980F95980F72D3/glintData/rt_test/new.fits'
+sys.path.append(os.path.abspath(MEMS_PATH))
+"""
+End of customization
+"""
+import IrisAO_PythonAPI as IrisAO_API
 
 MEMS_MAX = 2.5
 MEMS_MIN = -2.5
@@ -28,7 +34,6 @@ WAVELENGTH = 1.6
 NUM_DARK_FRAMES = 1
 STEP_SEG = 0
 SEGMENT_ID = 0
-PATH_TO_FRAMES = '/mnt/96980F95980F72D3/glintData/rt_test/new.fits'
 
 def display_error(err_code):
     """Gather all the hand-made error code which may rise because of MEMS or camera.
