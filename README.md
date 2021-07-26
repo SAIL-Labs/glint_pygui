@@ -31,14 +31,16 @@ Python script started: execute ``rt_control_gui`` in your favorite way.
 ## Installation
 To build on local machine
 
-	git clone https://github.com/SydneyAstrophotonicInstrumentationLab/glint_pygui
-	Optional: Create a new environment
-	python -m pip install glint_pygui
+- `git clone https://github.com/SydneyAstrophotonicInstrumentationLab/glint_pygui`
+
+- Optional: Create a new environment
+
+- `python -m pip install glint_pygui`
 
 To install the MEMS driver
 
- 	Unzip `mems_setup_kit`
-	Follow the instructions in `readme.txt`
+- Unzip `mems_setup_kit`
+- Follow the instructions in `readme.txt`
 
 Edit the variables in `rt_control_gui.py` between the beacons `Must be customized` and `End of customization`.
 
