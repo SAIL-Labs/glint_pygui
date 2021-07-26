@@ -41,3 +41,7 @@ To install the MEMS driver
 	Follow the instructions in `readme.txt`
 
 Edit the variables in `rt_control_gui.py` between the beacons `Must be customized` and `End of customization`.
+
+## Screenshot
+![gui_screenshot](https://user-images.githubusercontent.com/4233805/126922016-d92ac731-087b-4d4c-a2ca-153bbb0d931d.png)
+
