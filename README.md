@@ -28,6 +28,21 @@ Python script started: execute ``rt_control_gui`` in your favorite way.
 Interface is created.
 Python script started: execute ``rt_control_gui`` in your favorite way.
 
+## Compatibility
+Python >= 3.8.5.
+
+PyQT5 or later.
+
+It has been developed for linux and tested Ubuntu 18.04.
+The `mems_setup_kit` contains the MEMS driver for linux.
+
+If you have the MEMS driver for Windows or MAC, the GUI may work even if it
+has never been tested on such systems.
+
+For linux OS: every python package using a C-based code **must** be imported **after** the MEMS python library.
+A segment fault is raised otherwise.
+This explains why the `import` are scattered in the code.
+
 ## Installation
 To build on local machine
 
