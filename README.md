@@ -50,7 +50,9 @@ To build on local machine
 
 - Optional: Create a new environment
 
-- `python -m pip install glint_pygui` or `conda install /packages-path/glint_pygui-1.0.0.zip/targ.gz`
+- Go to the directory `glint_pygui`
+
+- type `python -m pip install setup.py`
 
 To install the MEMS driver
 
