@@ -28,16 +28,37 @@ Python script started: execute ``rt_control_gui`` in your favorite way.
 Interface is created.
 Python script started: execute ``rt_control_gui`` in your favorite way.
 
+## Compatibility
+Python >= 3.8.5.
+
+PyQT5 or later.
+
+It has been developed for linux and tested Ubuntu 18.04.
+The `mems_setup_kit` contains the MEMS driver for linux.
+
+If you have the MEMS driver for Windows or MAC, the GUI may work even if it
+has never been tested on such systems.
+
+For linux OS: every python package using a C-based code **must** be imported **after** the MEMS python library.
+A segment fault is raised otherwise.
+This explains why the `import` are scattered in the code.
+
 ## Installation
 To build on local machine
 
-	git clone https://github.com/SydneyAstrophotonicInstrumentationLab/glint_pygui
-	Optional: Create a new environment
-	python -m pip install glint_pygui
+- `git clone https://github.com/SydneyAstrophotonicInstrumentationLab/glint_pygui` or download the realease
+
+- Optional: Create a new environment
+
+- `python -m pip install glint_pygui` or `conda install /packages-path/glint_pygui-1.0.0.zip/targ.gz`
 
 To install the MEMS driver
 
- 	Unzip `mems_setup_kit`
-	Follow the instructions in `readme.txt`
+- Unzip `mems_setup_kit`
+- Follow the instructions in `readme.txt`
 
 Edit the variables in `rt_control_gui.py` between the beacons `Must be customized` and `End of customization`.
+
+## Screenshot
+![gui_screenshot](https://user-images.githubusercontent.com/4233805/126922016-d92ac731-087b-4d4c-a2ca-153bbb0d931d.png)
+
