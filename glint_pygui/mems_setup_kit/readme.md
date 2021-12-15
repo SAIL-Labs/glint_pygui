@@ -108,6 +108,7 @@ Open the script and set `disableHW = True` to not look for the hardware.
 # Start with hardware plugged
 I focus on how to check that the computer and the Smart Driver II communicates with each other.
 To do so, plugging the USB cable is enough, no need to plug the power cable of the driver.
+No driver are needed in Linux or Windows.
 The LED *USB Power* is lit on the box and the computer should see the driver as a USB storage.
 
 You can start the GUI as above.
