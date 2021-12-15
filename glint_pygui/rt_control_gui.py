@@ -54,7 +54,7 @@ def display_error(err_code):
     if err_code == 'M1':
         history_msg = prefix + 'MEMS connection error'
         terminal_msg = prefix + 'MEMS initialization failed.'+\
-                        'The GUI will open without MEMS features.'
+                        'Restart the GUI and choose to disable HW.'
     elif err_code == 'M2':
         history_msg = prefix + 'Flattening failed'
         terminal_msg = prefix + 'There was an error while'+\
@@ -101,7 +101,7 @@ class WarmUpMems(object):
         except Exception as e:
             error_message = str(e)
             error_message += "\n\nErr M1: There was a problem connecting to the mirror.\n"+\
-                             "Check the error message above."
+                             "Check the popup message above."
             print(error_message)
             self.mems_fuse = False
             self.mirror = None
@@ -318,6 +318,7 @@ class MainWindow(QtWidgets.QMainWindow):
             msgs = display_error('M1')
             self.addHistoryItem(msgs[0], False)
             msg = DisplayPopUp('Error', msgs[1])
+            sys.exit()
 
         # Init presets and segments variables
         self.mems_on = np.zeros((self.nb_segments, 3))
