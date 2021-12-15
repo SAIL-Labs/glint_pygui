@@ -15,6 +15,15 @@ Main features from Matlab GUI will be:
 Bonus:
 - RT view of the spectrum in the selected output to chase wiggles
 
+## Update 2021-12-15
+Adding new instructions in the readme.md of the mems_setup_kit.
+
+The zip archive mems_setup_kit is replaced by the full folder to ease updates of the files inside
+
+Change in the error message of the GUI if the HW driver is not seen.
+
+New realease 1.0.2.
+
 ## Update: 2021-12-07
 The installation process has been tested and corrected accordingly.
 Use the release 1.0.1.
